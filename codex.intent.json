@@ -1,0 +1,15 @@
+{
+  "goal": "MVP web Resumidor de Textos IA (ES/EN) con Next.js + API /api/summarize usando OPENAI_API_KEY",
+  "acceptance": [
+    "Landing simple con CTA a /summarizer",
+    "Página /summarizer con textarea, selector ES/EN, botón Resumir, muestra resultado",
+    "API POST /api/summarize recibe {text, lang} y devuelve {summary}",
+    "README con instrucciones, .env.example, .gitignore",
+    "Build y dev sin errores (npm run build, npm run dev)"
+  ],
+  "constraints": [
+    "No añadir dependencias no usadas",
+    "Código en TypeScript limpio",
+    "Accesibilidad básica (labels, aria-live)"
+  ]
+}
