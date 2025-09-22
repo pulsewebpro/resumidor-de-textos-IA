@@ -29,15 +29,23 @@ function buildPrompt({ text, langTarget, culturalize, chips }) {
   const guard = `INSTRUCCIONES DE FORMATO (OBLIGATORIAS):
 Devuelve ÚNICAMENTE JSON VÁLIDO con este esquema exacto:
 { "ok": true, "outputs": [{ "label": "Nombre Pestaña", "content": "texto" }] }
-• Sin texto adicional, sin Markdown, sin bloques \`\`\`.
-• Si hay varias salidas (p. ej. 'Bullets' y 'Tweet'), devuelve múltiples elementos en "outputs".`;
+• Sin texto adicional, sin comentarios, sin Markdown, sin bloques \`\`\`.
+• Si hay varias salidas (p. ej. "Bullets" y "Tweet"), devuelve múltiples elementos en "outputs".`;
 
-  return [
+  const prompt = [
     { role: 'system', content: sys },
-    { role: 'user', content: instructions.join('\n') },
+  ];
+
+  if (instructions.length) {
+    prompt.push({ role: 'user', content: instructions.join('\n') });
+  }
+
+  prompt.push(
     { role: 'user', content: `TEXTO DE USUARIO:\n${text}` },
     { role: 'user', content: guard },
-  ];
+  );
+
+  return prompt;
 }
 
 function getActiveChips() {
@@ -56,26 +64,38 @@ function toggleChip(btn) {
 }
 
 function initChips() {
-  const chips = document.querySelectorAll('.chip');
-  chips.forEach((chip) => {
-    if (chip.tagName !== 'BUTTON') {
-      chip.setAttribute('role', 'button');
-      if (!chip.hasAttribute('tabindex')) {
-        chip.tabIndex = 0;
-      }
-    } else {
-      chip.type = 'button';
+  const rawChips = Array.from(document.querySelectorAll('.chip'));
+  const chips = rawChips.map((original) => {
+    if (original.tagName === 'BUTTON') {
+      original.type = 'button';
+      return original;
     }
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = original.className;
+    button.innerHTML = original.innerHTML;
+
+    Array.from(original.attributes).forEach((attr) => {
+      if (attr.name === 'class') return;
+      if (attr.name === 'aria-pressed') return;
+      button.setAttribute(attr.name, attr.value);
+    });
+
+    const pressed = original.getAttribute('aria-pressed');
+    if (pressed) {
+      button.setAttribute('aria-pressed', pressed);
+    }
+
+    original.replaceWith(button);
+    return button;
+  });
+
+  chips.forEach((chip) => {
     if (!chip.hasAttribute('aria-pressed')) {
       chip.setAttribute('aria-pressed', 'false');
     }
     chip.addEventListener('click', () => toggleChip(chip));
-    chip.addEventListener('keydown', (event) => {
-      if (event.key === ' ' || event.key === 'Enter') {
-        event.preventDefault();
-        toggleChip(chip);
-      }
-    });
   });
 }
 
@@ -141,6 +161,7 @@ function renderOutputs(outputs) {
     return;
   }
 
+  tabList.setAttribute('role', 'tablist');
   tabList.innerHTML = '';
   panelsContainer.innerHTML = '';
 
@@ -170,6 +191,7 @@ function renderOutputs(outputs) {
     panel.setAttribute('role', 'tabpanel');
     panel.setAttribute('aria-labelledby', tab.id);
     panel.hidden = index !== 0;
+    panel.tabIndex = 0;
     panel.innerHTML = '';
 
     const content = document.createElement('div');
