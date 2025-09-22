@@ -21,12 +21,15 @@
 .chip.chip--active {
   background: var(--pulse-teal-100, #d6fffa);
   border-color: var(--pulse-teal-500, #00d1c2);
+  color: inherit;
+  box-shadow: 0 0 0 2px rgba(0, 209, 194, 0.25);
 }
 
 .chip:focus-visible {
   outline: 3px solid var(--pulse-blue-500, #2b6cf6);
   outline-offset: 2px;
   border-radius: 999px;
+  box-shadow: 0 0 0 3px rgba(43, 108, 246, 0.2);
 }
 
 [role="tablist"] {
@@ -47,11 +50,14 @@
 
 [role="tab"][aria-selected="true"] {
   border-bottom: 2px solid var(--pulse-blue-500, #2b6cf6);
+  color: var(--pulse-blue-500, #2b6cf6);
 }
 
 [role="tab"]:focus-visible {
   outline: 2px solid var(--pulse-blue-500, #2b6cf6);
-  outline-offset: 2px;
+  outline-offset: 3px;
+  border-radius: 0.5rem;
+  box-shadow: 0 0 0 3px rgba(43, 108, 246, 0.2);
 }
 
 [role="tabpanel"] {

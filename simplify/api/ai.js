@@ -3,10 +3,17 @@ import OpenAI from 'openai';
 const apiKey = process.env.OPENAI_API_KEY;
 const client = apiKey ? new OpenAI({ apiKey }) : null;
 const isProd = process.env.NODE_ENV === 'production';
-const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || (isProd ? '' : '*');
+const envAllowedOrigin = process.env.ALLOWED_ORIGIN;
+const ALLOWED_ORIGIN = isProd ? envAllowedOrigin : '*';
 
-function setCors(res) {
-  if (ALLOWED_ORIGIN) {
+function setCors(req, res) {
+  const requestOrigin = req.headers.origin;
+  const allowWildcard = !isProd || ALLOWED_ORIGIN === '*';
+  const canMirrorOrigin = ALLOWED_ORIGIN && requestOrigin && requestOrigin === ALLOWED_ORIGIN;
+
+  if (allowWildcard) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+  } else if (canMirrorOrigin || (!requestOrigin && ALLOWED_ORIGIN)) {
     res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
   }
   res.setHeader('Vary', 'Origin');
@@ -56,6 +63,57 @@ function extractJSON(raw) {
   return null;
 }
 
+function sanitizeOutputs(outputs) {
+  if (!Array.isArray(outputs)) return null;
+
+  const sanitized = outputs
+    .map((item, index) => {
+      if (!item || typeof item !== 'object') return null;
+      const label = typeof item.label === 'string' && item.label.trim()
+        ? item.label.trim()
+        : `Resultado ${index + 1}`;
+      const contentValue = item.content != null ? item.content : '';
+      const content = typeof contentValue === 'string' ? contentValue : String(contentValue);
+      return { label, content };
+    })
+    .filter(Boolean);
+
+  return sanitized.length ? sanitized : null;
+}
+
+function normalizeResponsePayload(payload) {
+  if (!payload || typeof payload !== 'object') {
+    return null;
+  }
+
+  if (payload.ok === false) {
+    return { ok: false, message: payload.message || 'Error' };
+  }
+
+  const baseOutputs = Array.isArray(payload) ? payload : payload.result?.outputs || payload.outputs;
+  const outputs = sanitizeOutputs(baseOutputs);
+  if (outputs) {
+    return { ok: true, result: { outputs } };
+  }
+
+  return null;
+}
+
+function createFallbackFromRaw(raw) {
+  const content = String(raw ?? '').trim();
+  return {
+    ok: true,
+    result: {
+      outputs: [
+        {
+          label: 'Resultado',
+          content,
+        },
+      ],
+    },
+  };
+}
+
 async function callOpenAI(messages, maxTokens) {
   if (!client) {
     const error = new Error('OPENAI_API_KEY no está configurada.');
@@ -82,7 +140,7 @@ async function callOpenAI(messages, maxTokens) {
 }
 
 export default async function handler(req, res) {
-  setCors(res);
+  setCors(req, res);
   if (req.method === 'OPTIONS') {
     return res.status(204).end();
   }
@@ -101,23 +159,15 @@ export default async function handler(req, res) {
     }
 
     const raw = await callOpenAI(composedPrompt, maxTokens);
-    let parsed = extractJSON(raw);
+    const parsed = extractJSON(raw);
+    const normalized = normalizeResponsePayload(parsed);
 
-    if (!parsed) {
-      parsed = {
-        ok: true,
-        result: {
-          outputs: [
-            {
-              label: 'Resultado',
-              content: String(raw || '').trim(),
-            },
-          ],
-        },
-      };
+    if (normalized) {
+      return res.status(200).json(normalized);
     }
 
-    return res.status(200).json(parsed.ok ? parsed : { ok: true, result: parsed.result || parsed });
+    const fallback = createFallbackFromRaw(raw);
+    return res.status(200).json(fallback);
   } catch (error) {
     const status = error.status || 500;
     console.error(`[api/ai] ${status} ${error.message || 'Error'}`);
