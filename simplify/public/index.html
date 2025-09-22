@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Simplify AI</title>
+  <meta name="description" content="Simplify AI – Textos en 1 click" />
+  <link rel="canonical" href="https://simplify.pulsewebpro.com/" />
+  <link rel="stylesheet" href="./styles.css" />
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, sans-serif; background:#F7F8FA; margin:0; }
+    .wrap { max-width: 980px; margin: 40px auto; padding: 24px; background:#fff; border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,.06); }
+    h1 { margin:0 0 8px; }
+    .muted { color:#667; margin:0 0 24px; }
+    textarea { width:100%; min-height:160px; font: inherit; padding:12px; border-radius:8px; border:1px solid #ddd; }
+    .row { display:flex; gap:8px; margin-top:12px; }
+    button { padding:10px 14px; border-radius:10px; border:1px solid #2B6CF6; background:#2B6CF6; color:#fff; cursor:pointer; }
+    button.sec { background:#fff; color:#2B6CF6; }
+    #out { white-space: pre-wrap; line-height:1.6; padding:12px; border:1px solid #eee; border-radius:8px; margin-top:16px; background:#fafafa; min-height:80px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Simplify AI – Textos en 1 click</h1>
+    <p class="muted">Prueba rápida para verificar despliegue y la API.</p>
+
+    <textarea id="txt" placeholder="Pega tu texto aquí…"></textarea>
+    <div class="row">
+      <button id="go">Generar (ping API)</button>
+      <button class="sec" id="health">Probar /api/health</button>
+    </div>
+    <div id="out"></div>
+  </div>
+
+  <script type="module" src="./main.js"></script>
+  <script>
+  // helpers para probar sin tocar main.js todavía:
+  const out = document.getElementById('out');
+  document.getElementById('health').onclick = async () => {
+    out.textContent = 'Probando /api/health…';
+    try {
+      const r = await fetch('/api/health');
+      out.textContent = (r.status + ' ' + (await r.text()));
+    } catch (e) { out.textContent = e.message; }
+  };
+  document.getElementById('go').onclick = async () => {
+    const body = {
+      prompt: [
+        { role: 'system', content: 'Devuelve solo JSON {"ok":true,"outputs":[{"label":"Result","content":"texto"}]}' },
+        { role: 'user', content: 'Escribe 1 frase positiva.' }
+      ],
+      maxTokens: 200
+    };
+    out.textContent = 'Llamando /api/ai…';
+    try {
+      const r = await fetch('/api/ai', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+      out.textContent = await r.text();
+    } catch (e) { out.textContent = e.message; }
+  };
+  </script>
+</body>
+</html>
