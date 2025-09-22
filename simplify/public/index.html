@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Simplify AI – Textos en 1 click</title>
+  <meta name="description" content="Simplify AI te ayuda a resumir, traducir y transformar textos en segundos con chips inteligentes." />
+  <link rel="canonical" href="https://simplify.pulsewebpro.com/" />
+  <meta property="og:title" content="Simplify AI – Textos en 1 click" />
+  <meta property="og:description" content="Textos impecables al instante con IA: resume, traduce, crea y exporta en un flujo muy simple." />
+  <meta property="og:image" content="https://simplify.pulsewebpro.com/avatar.png" />
+  <meta property="og:type" content="website" />
+  <meta name="theme-color" content="#00D1C2" />
+  <link rel="stylesheet" href="./styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.10.111/pdf.min.js" integrity="sha512-3bHF2CjaD6iUWkN1mku1SZ6ES29zXYEmAJ0iJ3j0kO4RYQnLj9DuS68u0yv2nyUpfDRmqofZDT5VyHdpACOW0w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha512-NaWenGNBHwX1MZb6pPv+OonnxUHOJVJUtUznpnp/oz68Ix3gqmq+5Qw49XJ3Pn9CKBsiGZQJHpfUxsA7kKJQ5A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.2.1/docx.min.js" integrity="sha512-Eof8a9l6+98Qn3XeLkpzJslC+E1nVph2RwXNX99Snvj7dTqtg8TE3jXnFvQOPktHHBEYyOe5b7b4UL20AfzNjA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body>
+  <div class="page" id="app">
+    <header class="app-header" role="banner">
+      <img src="./avatar.png" alt="Avatar Simplify" class="avatar" width="64" height="64" />
+      <div>
+        <h1 class="title">Simplify AI – Textos en 1 click</h1>
+        <p class="subtitle" data-i18n="subtitle">Todo listo para crear textos impecables con IA.</p>
+      </div>
+    </header>
+
+    <section class="controls" aria-label="Configuración principal">
+      <div class="control-group">
+        <label for="language-select" class="control-label" data-i18n="label_language">Idioma de salida</label>
+        <div class="select-wrapper">
+          <input type="text" id="language-search" class="language-search" placeholder="Buscar" aria-label="Buscar idioma" />
+          <select id="language-select" aria-live="polite"></select>
+        </div>
+      </div>
+      <div class="control-group switch-group">
+        <label class="switch">
+          <input type="checkbox" id="culturalize-switch" />
+          <span class="slider" aria-hidden="true"></span>
+        </label>
+        <label for="culturalize-switch" class="control-label" data-i18n="label_culturalize">Adaptar culturalmente</label>
+      </div>
+    </section>
+
+    <main>
+      <section class="input-area" aria-label="Entrada de texto">
+        <label for="user-text" class="control-label" data-i18n="label_input">Texto origen</label>
+        <textarea id="user-text" rows="8" placeholder="Paste or drop your text here..." aria-multiline="true"></textarea>
+        <p class="drop-hint" data-i18n="hint_drop">Puedes pegar o arrastrar un PDF aquí.</p>
+      </section>
+
+      <section class="chips-area" aria-label="Acciones disponibles" id="chips-container">
+        <!-- Chips rendered here -->
+      </section>
+
+      <section class="actions" aria-label="Acciones">
+        <button id="generate-btn" class="btn primary" data-i18n="cta_generate">Generar</button>
+        <button id="clear-btn" class="btn secondary" data-i18n="cta_clear">Limpiar</button>
+      </section>
+
+      <section class="results" aria-live="polite" aria-label="Resultados">
+        <div class="results-header">
+          <h2 data-i18n="result">Resultado</h2>
+          <div class="result-actions">
+            <button class="btn ghost" id="copy-btn" data-i18n="cta_copy">Copiar</button>
+            <button class="btn ghost" id="export-docx" data-i18n="cta_export_docx">Exportar DOCX</button>
+            <button class="btn ghost" id="export-pdf" data-i18n="cta_export_pdf">Exportar PDF</button>
+          </div>
+        </div>
+        <div class="tabs" id="result-tabs" role="tablist"></div>
+        <div class="tab-panels" id="result-panels"></div>
+        <div class="loader" id="loader" hidden>
+          <div class="pulse"></div>
+          <span data-i18n="loading">Generando…</span>
+        </div>
+        <div class="toast" id="toast" role="status" aria-live="assertive" hidden></div>
+      </section>
+    </main>
+  </div>
+  <script defer src="./main.js"></script>
+</body>
+</html>
