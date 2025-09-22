@@ -85,3 +85,9 @@
     transform: rotate(360deg);
   }
 }
+
+/* --- Simplify: salida y loader --- */
+#out[data-ready="0"]{display:none}
+#out{white-space:pre-wrap}
+#loading{display:none;margin:12px 0;color:#111;background:#f4f4f5;border-radius:12px;padding:8px 12px}
+#loading[aria-hidden="false"]{display:block}
