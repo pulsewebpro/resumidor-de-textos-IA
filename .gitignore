@@ -1,1 +1,9 @@
 node_modules
+.vercel
+
+# Simplify
+simplify/.env.local
+simplify/*.bak
+simplify/api/*.bak
+simplify/.vercel
+simplify/node_modules

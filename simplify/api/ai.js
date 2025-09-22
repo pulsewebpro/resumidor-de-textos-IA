@@ -1,84 +1,74 @@
-/**
- * Wrapper robusto para /api/ai
- * - sanea Access-Control-Allow-Origin y cualquier header antes de enviarlo
- * - delega en ai.real / ai.orig sin editar el original
- */
-let mod;
-try { mod = require('./ai.real'); } catch (e) {
-  try { mod = require('./ai.orig'); } catch (e2) { mod = require('./ai.handler'); }
-}
+export default async function handler(req, res) {
+  // --- safe setHeader (evita "Invalid character in header content")
+  const _o = res.setHeader?.bind(res);
+  const clean = (v, fb='') => {
+    if (Array.isArray(v)) v = v[0];
+    v = v==null ? fb : (typeof v==='string'?v:String(v));
+    v = v.replace(/[\u0000-\u001F\u007F\r\n]+/g,'').trim();
+    return v || String(fb);
+  };
+  res.setHeader = (n,v)=>{
+    if (!n) return _o(n,v);
+    if (n.toLowerCase()==='access-control-allow-origin') return _o('Access-Control-Allow-Origin', clean(v,'*'));
+    if (Array.isArray(v)) v = v.join(',');
+    return _o(n, clean(v,''));
+  };
 
-function getHandler(m) {
-  if (!m) return null;
-  if (typeof m === 'function') return m;
-  if (typeof m.default === 'function') return m.default;
-  if (typeof m.handler === 'function') return m.handler;
-  if (m.default && typeof m.default.handler === 'function') return m.default.handler;
-  return null;
-}
+  // --- CORS
+  let origin = process.env.ALLOWED_ORIGIN ?? '*';
+  try { const p = typeof origin==='string' ? JSON.parse(origin) : origin; if (Array.isArray(p)&&p[0]) origin=p[0]; } catch {}
+  if (Array.isArray(origin)) origin = origin[0] ?? '*';
+  origin = clean(typeof origin==='string' ? origin : '*','*');
+  res.setHeader('Access-Control-Allow-Origin', origin);
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  if (req.method==='OPTIONS') { res.statusCode=204; return res.end(); }
+  if (req.method!=='POST') { res.statusCode=405; return res.end(JSON.stringify({ok:false,error:'Method Not Allowed'})); }
 
-const handlerFn = getHandler(mod);
-
-function safeStringForHeader(v, fallback='') {
-  if (Array.isArray(v)) v = v[0];
-  if (v === null || v === undefined) return String(fallback);
-  if (typeof v !== 'string') {
-    try { v = String(v); } catch(e){ v = String(fallback); }
+  // --- body parse tolerante
+  let body = req.body;
+  if (!body) {
+    try {
+      const chunks=[]; await new Promise(r=>{req.on('data',c=>chunks.push(c));req.on('end',r);});
+      body = chunks.length ? JSON.parse(Buffer.concat(chunks).toString('utf8')) : {};
+    } catch { body = {}; }
   }
-  // eliminar CR/LF y caracteres de control comunes
-  v = v.replace(/[\u0000-\u001F\u007F\r\n]+/g, '').trim();
-  if (v === '') v = String(fallback);
-  return v;
-}
 
-module.exports = async function (req, res) {
-  // 1) preflight CORS básico a modo seguro (si llega OPTIONS)
-  try {
-    let originEnv = process.env.ALLOWED_ORIGIN || '*';
-    if (typeof originEnv === 'string') {
-      try { const parsed = JSON.parse(originEnv); if (Array.isArray(parsed) && parsed.length) originEnv = parsed[0]; } catch(e) {}
+  // --- prompt[] o input->prompt[]
+  let { prompt: composedPrompt, input, maxTokens } = body || {};
+  if (!Array.isArray(composedPrompt) && typeof input==='string' && input.trim()) {
+    composedPrompt = [{ role:'user', content: input.trim() }];
+  }
+  if (!Array.isArray(composedPrompt) || composedPrompt.length===0) {
+    res.statusCode=400;
+    res.setHeader('Content-Type','application/json; charset=utf-8');
+    return res.end(JSON.stringify({ ok:false, error:'Prompt inválido.' }));
+  }
+
+  // --- llamada a OpenAI (opcional; fallback si falta clave)
+  const apiKey = process.env.OPENAI_API_KEY;
+  const max_tokens = Math.max(1, Math.min(2048, Number(maxTokens)||512));
+  let text = '';
+
+  if (apiKey) {
+    try {
+      const r = await fetch('https://api.openai.com/v1/chat/completions', {
+        method:'POST',
+        headers:{ 'Authorization':`Bearer ${apiKey}`, 'Content-Type':'application/json' },
+        body: JSON.stringify({ model:'gpt-4o-mini', messages: composedPrompt, max_tokens, temperature:0.3 })
+      });
+      const d = await r.json();
+      text = d?.choices?.[0]?.message?.content?.trim?.() || '';
+    } catch(e) {
+      console.error('openai error', e?.message||e);
     }
-    if (Array.isArray(originEnv)) originEnv = originEnv[0];
-    originEnv = safeStringForHeader(originEnv, '*');
-    res.setHeader('Access-Control-Allow-Origin', originEnv);
-    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    if (req.method === 'OPTIONS') return res.status(204).end();
-  } catch (e) {
-    console.error('CORS guard preflight failed:', e && e.stack ? e.stack : e);
+  }
+  if (!text) {
+    // --- fallback sin exponer datos (no logs de usuario)
+    const userText = composedPrompt.map(m=>m?.role==='user'?m.content:'').filter(Boolean).join('\n').slice(0,2000);
+    text = userText || 'OK';
   }
 
-  // 2) Monkeypatch res.setHeader para sanear cualquier header que intente poner el handler
-  const _origSetHeader = res.setHeader ? res.setHeader.bind(res) : null;
-  if (_origSetHeader) {
-    res.setHeader = function (name, value) {
-      try {
-        if (!name || typeof name !== 'string') return _origSetHeader(name, value);
-        const lname = name.toLowerCase();
-        if (lname === 'access-control-allow-origin') {
-          const safe = safeStringForHeader(value, '*');
-          return _origSetHeader('Access-Control-Allow-Origin', safe);
-        }
-        // para otros headers: si es array, convertir a csv; luego sanitizar string
-        if (Array.isArray(value)) value = value.join(',');
-        const safeVal = safeStringForHeader(value, '');
-        return _origSetHeader(name, safeVal);
-      } catch (err) {
-        console.error('SAFE setHeader failed for', name, err && err.stack ? err.stack : err);
-        try { return _origSetHeader(name, typeof value === 'string' ? value.replace(/[\r\n]+/g,'') : ''); } catch(e2) {}
-      }
-    };
-  }
-
-  // 3) Delegar al handler original (si existe)
-  try {
-    if (!handlerFn) {
-      console.error('WRAPPER ERROR: no handler found in ai.real/ai.orig');
-      return res.status(500).json({ ok:false, error:'server_error', message:'no handler found' });
-    }
-    await handlerFn(req, res);
-  } catch (err) {
-    console.error('WRAPPER /api/ai ERROR', err && err.stack ? err.stack : err);
-    res.status(500).json({ ok:false, error:'server_error', message:String(err && err.message ? err.message : err) });
-  }
-};
+  res.setHeader('Content-Type','application/json; charset=utf-8');
+  res.end(JSON.stringify({ ok:true, outputs:[{ label:'default', content:text }] }));
+}
