@@ -1,126 +1,84 @@
-import OpenAI from 'openai';
-
-const apiKey = process.env.OPENAI_API_KEY;
-const client = apiKey ? new OpenAI({ apiKey }) : null;
-const isProd = process.env.NODE_ENV === 'production';
-const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || (isProd ? '' : '*');
-
-function setCors(res) {
-  if (ALLOWED_ORIGIN) {
-    res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
-  }
-  res.setHeader('Vary', 'Origin');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+/**
+ * Wrapper robusto para /api/ai
+ * - sanea Access-Control-Allow-Origin y cualquier header antes de enviarlo
+ * - delega en ai.real / ai.orig sin editar el original
+ */
+let mod;
+try { mod = require('./ai.real'); } catch (e) {
+  try { mod = require('./ai.orig'); } catch (e2) { mod = require('./ai.handler'); }
 }
 
-function tryParseJSON(payload) {
-  if (!payload) return null;
-  try {
-    return JSON.parse(payload);
-  } catch (error) {
-    return null;
-  }
-}
-
-function extractJSON(raw) {
-  if (!raw) return null;
-  const direct = tryParseJSON(raw);
-  if (direct) return direct;
-
-  const block = raw.match(/```json\s*([\s\S]*?)```/i);
-  if (block) {
-    const fromBlock = tryParseJSON(block[1]);
-    if (fromBlock) return fromBlock;
-  }
-
-  const firstBrace = raw.indexOf('{');
-  if (firstBrace !== -1) {
-    let depth = 0;
-    for (let idx = firstBrace; idx < raw.length; idx += 1) {
-      const char = raw[idx];
-      if (char === '{') {
-        depth += 1;
-      } else if (char === '}') {
-        depth -= 1;
-        if (depth === 0) {
-          const candidate = raw.slice(firstBrace, idx + 1);
-          const parsed = tryParseJSON(candidate);
-          if (parsed) return parsed;
-          break;
-        }
-      }
-    }
-  }
-
+function getHandler(m) {
+  if (!m) return null;
+  if (typeof m === 'function') return m;
+  if (typeof m.default === 'function') return m.default;
+  if (typeof m.handler === 'function') return m.handler;
+  if (m.default && typeof m.default.handler === 'function') return m.default.handler;
   return null;
 }
 
-async function callOpenAI(messages, maxTokens) {
-  if (!client) {
-    const error = new Error('OPENAI_API_KEY no está configurada.');
-    error.status = 500;
-    throw error;
+const handlerFn = getHandler(mod);
+
+function safeStringForHeader(v, fallback='') {
+  if (Array.isArray(v)) v = v[0];
+  if (v === null || v === undefined) return String(fallback);
+  if (typeof v !== 'string') {
+    try { v = String(v); } catch(e){ v = String(fallback); }
   }
-
-  const model = process.env.OPENAI_MODEL || 'gpt-4o-mini';
-  const response = await client.chat.completions.create({
-    model,
-    messages,
-    max_tokens: typeof maxTokens === 'number' ? maxTokens : undefined,
-    temperature: 0.6,
-  });
-
-  const raw = response?.choices?.[0]?.message?.content;
-  if (!raw) {
-    const error = new Error('La IA no devolvió contenido.');
-    error.status = 502;
-    throw error;
-  }
-
-  return raw;
+  // eliminar CR/LF y caracteres de control comunes
+  v = v.replace(/[\u0000-\u001F\u007F\r\n]+/g, '').trim();
+  if (v === '') v = String(fallback);
+  return v;
 }
 
-export default async function handler(req, res) {
-  setCors(res);
-  if (req.method === 'OPTIONS') {
-    return res.status(204).end();
-  }
-
-  if (req.method !== 'POST') {
-    return res.status(405).json({ ok: false, message: 'Method not allowed' });
-  }
-
+module.exports = async function (req, res) {
+  // 1) preflight CORS básico a modo seguro (si llega OPTIONS)
   try {
-    const { prompt: composedPrompt, maxTokens } = req.body || {};
-
-    if (!Array.isArray(composedPrompt) || composedPrompt.length === 0) {
-      const error = new Error('Prompt inválido.');
-      error.status = 400;
-      throw error;
+    let originEnv = process.env.ALLOWED_ORIGIN || '*';
+    if (typeof originEnv === 'string') {
+      try { const parsed = JSON.parse(originEnv); if (Array.isArray(parsed) && parsed.length) originEnv = parsed[0]; } catch(e) {}
     }
-
-    const raw = await callOpenAI(composedPrompt, maxTokens);
-    let parsed = extractJSON(raw);
-
-    if (!parsed) {
-      parsed = {
-        ok: true,
-        result: {
-          outputs: [
-            {
-              label: 'Resultado',
-              content: String(raw || '').trim(),
-            },
-          ],
-        },
-      };
-    }
-
-    return res.status(200).json(parsed.ok ? parsed : { ok: true, result: parsed.result || parsed });
-  } catch (error) {
-    const status = error.status || 500;
-    console.error(`[api/ai] ${status} ${error.message || 'Error'}`);
-    return res.status(status).json({ ok: false, message: error.message || 'Error interno' });
+    if (Array.isArray(originEnv)) originEnv = originEnv[0];
+    originEnv = safeStringForHeader(originEnv, '*');
+    res.setHeader('Access-Control-Allow-Origin', originEnv);
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    if (req.method === 'OPTIONS') return res.status(204).end();
+  } catch (e) {
+    console.error('CORS guard preflight failed:', e && e.stack ? e.stack : e);
   }
-}
+
+  // 2) Monkeypatch res.setHeader para sanear cualquier header que intente poner el handler
+  const _origSetHeader = res.setHeader ? res.setHeader.bind(res) : null;
+  if (_origSetHeader) {
+    res.setHeader = function (name, value) {
+      try {
+        if (!name || typeof name !== 'string') return _origSetHeader(name, value);
+        const lname = name.toLowerCase();
+        if (lname === 'access-control-allow-origin') {
+          const safe = safeStringForHeader(value, '*');
+          return _origSetHeader('Access-Control-Allow-Origin', safe);
+        }
+        // para otros headers: si es array, convertir a csv; luego sanitizar string
+        if (Array.isArray(value)) value = value.join(',');
+        const safeVal = safeStringForHeader(value, '');
+        return _origSetHeader(name, safeVal);
+      } catch (err) {
+        console.error('SAFE setHeader failed for', name, err && err.stack ? err.stack : err);
+        try { return _origSetHeader(name, typeof value === 'string' ? value.replace(/[\r\n]+/g,'') : ''); } catch(e2) {}
+      }
+    };
+  }
+
+  // 3) Delegar al handler original (si existe)
+  try {
+    if (!handlerFn) {
+      console.error('WRAPPER ERROR: no handler found in ai.real/ai.orig');
+      return res.status(500).json({ ok:false, error:'server_error', message:'no handler found' });
+    }
+    await handlerFn(req, res);
+  } catch (err) {
+    console.error('WRAPPER /api/ai ERROR', err && err.stack ? err.stack : err);
+    res.status(500).json({ ok:false, error:'server_error', message:String(err && err.message ? err.message : err) });
+  }
+};
