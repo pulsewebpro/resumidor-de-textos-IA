@@ -1,0 +1,64 @@
+{
+  "title": "Simplify — Herramientas de texto IA",
+  "subtitle": "Resúmenes, reescrituras y traducciones al instante.",
+  "textarea_placeholder": "Pega tu texto aquí…",
+  "tabs": {
+    "result": "Resultado",
+    "json": "JSON",
+    "raw": "Raw"
+  },
+  "wallet": {
+    "uses": "Usos",
+    "plan": "Plan",
+    "buy_one": "+1",
+    "buy_ten": "+10",
+    "buy_sub": "Suscripción",
+    "label_balance": "Usos",
+    "infinite": "∞",
+    "plan_free": "Plan gratuito",
+    "plan_one": "Recarga individual",
+    "plan_pack10": "Paquete x10",
+    "plan_sub": "Suscripción"
+  },
+  "stripe": {
+    "explain": "Compra créditos con Stripe"
+  },
+  "language": {
+    "label": "Idioma"
+  },
+  "admin": "Modo Admin activo",
+  "blocked": "Te has quedado sin créditos. Compra un pack para continuar.",
+  "status": {
+    "ready": "Listo",
+    "loading": "Generando…",
+    "wallet_updated": "Saldo actualizado.",
+    "checkout_cancelled": "Pago cancelado.",
+    "purchase_fail": "No pudimos validar la compra.",
+    "network_error": "Error de red. Intenta de nuevo.",
+    "pdf_loading": "Leyendo PDF…",
+    "pdf_error": "No se pudo extraer texto de ese PDF.",
+    "no_text": "Escribe o pega un texto primero.",
+    "copied": "¡Copiado!",
+    "copy_error": "No se pudo copiar."
+  },
+  "prompts": {
+    "language": "Idioma destino (código o nombre)",
+    "region": "¿A qué región o mercado hay que adaptar?",
+    "goal": "¿Cuál es el objetivo a lograr?",
+    "role": "Explícalo como…"
+  },
+  "export": {
+    "docx": "Exportar DOCX",
+    "pdf": "Exportar PDF",
+    "copy": "Copiar resultado"
+  },
+  "pdf": {
+    "button": "Subir PDF",
+    "hint": "Usa un PDF para resumirlo automáticamente."
+  },
+  "footer": {
+    "terms": "Términos",
+    "privacy": "Privacidad",
+    "cookies": "Cookies"
+  }
+}

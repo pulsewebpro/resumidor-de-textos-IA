@@ -1,18 +1,15 @@
 {
   "name": "simplify",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "openai": "^5.22.0"
-  },
+  "description": "Simplify — SPA for AI text tools",
   "type": "module",
+  "scripts": {
+    "test": "echo \"No automated tests configured\""
+  },
+  "dependencies": {
+    "openai": "^5.22.0",
+    "stripe": "^14.22.0"
+  },
   "engines": {
     "node": ">=18"
   }

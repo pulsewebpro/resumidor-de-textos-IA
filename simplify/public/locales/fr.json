@@ -1,0 +1,64 @@
+{
+  "title": "Simplify — Outils de texte IA",
+  "subtitle": "Résumés, réécritures et traductions instantanées.",
+  "textarea_placeholder": "Collez votre texte ici…",
+  "tabs": {
+    "result": "Résultat",
+    "json": "JSON",
+    "raw": "Brut"
+  },
+  "wallet": {
+    "uses": "Utilisations",
+    "plan": "Formule",
+    "buy_one": "+1",
+    "buy_ten": "+10",
+    "buy_sub": "Abonnement",
+    "label_balance": "Utilisations",
+    "infinite": "∞",
+    "plan_free": "Essai gratuit",
+    "plan_one": "Recharge unitaire",
+    "plan_pack10": "Pack x10",
+    "plan_sub": "Abonnement"
+  },
+  "stripe": {
+    "explain": "Achetez des crédits avec Stripe"
+  },
+  "language": {
+    "label": "Langue"
+  },
+  "admin": "Mode Admin actif",
+  "blocked": "Vous avez épuisé vos crédits. Achetez un pack pour continuer.",
+  "status": {
+    "ready": "Prêt",
+    "loading": "Génération…",
+    "wallet_updated": "Portefeuille mis à jour.",
+    "checkout_cancelled": "Paiement annulé.",
+    "purchase_fail": "Impossible de valider l’achat.",
+    "network_error": "Erreur réseau. Réessayez.",
+    "pdf_loading": "Lecture du PDF…",
+    "pdf_error": "Impossible d’extraire le texte de ce PDF.",
+    "no_text": "Saisissez un texte avant.",
+    "copied": "Copié !",
+    "copy_error": "Impossible de copier."
+  },
+  "prompts": {
+    "language": "Langue cible (code ou nom)",
+    "region": "Quelle région ou marché viser ?",
+    "goal": "Quel objectif viser ?",
+    "role": "Explique-le comme…"
+  },
+  "export": {
+    "docx": "Exporter en DOCX",
+    "pdf": "Exporter en PDF",
+    "copy": "Copier le résultat"
+  },
+  "pdf": {
+    "button": "Téléverser un PDF",
+    "hint": "Utilisez un PDF pour le résumer automatiquement."
+  },
+  "footer": {
+    "terms": "Conditions",
+    "privacy": "Confidentialité",
+    "cookies": "Cookies"
+  }
+}
