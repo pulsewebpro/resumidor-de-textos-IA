@@ -1,0 +1,64 @@
+{
+  "title": "Simplify — AI Text Tools",
+  "subtitle": "Summaries, rewrites and translations powered by AI.",
+  "textarea_placeholder": "Paste your text here…",
+  "tabs": {
+    "result": "Result",
+    "json": "JSON",
+    "raw": "Raw"
+  },
+  "wallet": {
+    "uses": "Uses",
+    "plan": "Plan",
+    "buy_one": "+1",
+    "buy_ten": "+10",
+    "buy_sub": "Subscription",
+    "label_balance": "Uses",
+    "infinite": "∞",
+    "plan_free": "Free trial",
+    "plan_one": "Single add-on",
+    "plan_pack10": "10-pack",
+    "plan_sub": "Subscription"
+  },
+  "stripe": {
+    "explain": "Buy credits with Stripe"
+  },
+  "language": {
+    "label": "Language"
+  },
+  "admin": "Admin mode active",
+  "blocked": "You're out of credits. Buy a pack to continue.",
+  "status": {
+    "ready": "Ready",
+    "loading": "Generating…",
+    "wallet_updated": "Wallet updated.",
+    "checkout_cancelled": "Checkout cancelled.",
+    "purchase_fail": "We couldn't validate the purchase.",
+    "network_error": "Network error. Try again.",
+    "pdf_loading": "Reading PDF…",
+    "pdf_error": "We couldn't extract text from that PDF.",
+    "no_text": "Enter some text first.",
+    "copied": "Copied!",
+    "copy_error": "Unable to copy."
+  },
+  "prompts": {
+    "language": "Target language (code or name)",
+    "region": "Which region or market should we adapt to?",
+    "goal": "What goal should we focus on?",
+    "role": "Explain it as…"
+  },
+  "export": {
+    "docx": "Export DOCX",
+    "pdf": "Export PDF",
+    "copy": "Copy result"
+  },
+  "pdf": {
+    "button": "Upload PDF",
+    "hint": "Use a PDF to summarize automatically."
+  },
+  "footer": {
+    "terms": "Terms",
+    "privacy": "Privacy",
+    "cookies": "Cookies"
+  }
+}

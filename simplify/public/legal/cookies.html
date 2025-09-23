@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Simplify · Cookies</title>
+  <style>
+    body { margin: 0; background: #0B0F14; color: #E6EEF8; font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Inter, Arial, sans-serif; line-height: 1.6; padding: 32px; }
+    main { max-width: 900px; margin: 0 auto; background: #121923; border: 1px solid #263241; border-radius: 20px; padding: 32px; box-shadow: 0 20px 60px rgba(2, 10, 24, 0.4); }
+    h1, h2 { color: #00E5FF; }
+    a { color: #00E5FF; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Simplify · Cookies & Local Storage</h1>
+    <p>Simplify uses minimal browser storage to operate the wallet and language preferences. No advertising cookies are set.</p>
+
+    <h2>Essential storage</h2>
+    <ul>
+      <li><strong>simplify_uid:</strong> anonymous identifier used to assign free credits and link purchases. Stored in localStorage.</li>
+      <li><strong>simplify_set:</strong> secure token containing the remaining credits and plan. Stored in localStorage to authenticate API calls.</li>
+      <li><strong>simplify_lang:</strong> language preference for the interface.</li>
+      <li><strong>simplify_admin:</strong> optional flag to activate local admin mode for QA.</li>
+    </ul>
+
+    <p>You can clear these values at any time via your browser settings. Deleting them will reset the wallet and require a new free allocation.</p>
+
+    <h2>Third-party cookies</h2>
+    <p>Stripe Checkout may set its own cookies when you proceed to payment. These cookies are controlled by Stripe to secure the checkout experience.</p>
+
+    <p>For further information contact <a href="mailto:privacy@simplify.ai">privacy@simplify.ai</a>.</p>
+  </main>
+</body>
+</html>

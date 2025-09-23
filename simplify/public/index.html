@@ -1,63 +1,109 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Simplify AI — Textos en 1 click</title>
-  <link rel="stylesheet" href="./styles.css?v=1758634303801">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Simplify — AI Text Tools</title>
+  <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <main class="container">
-    <h1>Simplify AI – Textos en 1 click</h1>
-    <p class="subtle">Prueba rápida para verificar despliegue y la API.</p>
-
-    <section class="card" aria-labelledby="input-title">
-      <h2 id="input-title" class="sr-only">Entrada</h2>
-      <textarea id="input" rows="10" placeholder="Pega tu texto aquí…"></textarea>
-      <div class="actions">
-        <button id="btn-gen" class="btn primary">Generar (ping API)</button>
-        <button id="btn-health" class="btn outline">Probar /api/health</button>
+  <div class="app" id="app">
+    <canvas id="backdrop" aria-hidden="true"></canvas>
+    <header class="topbar" role="banner">
+      <div class="brand">
+        <img src="./avatar.png" alt="Simplify avatar" class="brand-avatar">
+        <div class="brand-meta">
+          <p class="brand-title" data-i18n="title">Simplify — AI Text Tools</p>
+          <p class="brand-subtitle" data-i18n="subtitle">Summaries, rewrites and translations powered by AI.</p>
+        </div>
       </div>
-    </section>
-
-    <section class="card" aria-labelledby="chips-title">
-      <h3 id="chips-title">Acciones rápidas</h3>
-      <div id="chips-panel" class="chips-grid"></div>
-    </section>
-
-    <section id="pay-panel" class="card" aria-labelledby="pay-title">
-      <h3 id="pay-title">Créditos y suscripción</h3>
-      <p>Te quedan <strong id="uses-left">3/3</strong> usos gratis. Cuando se agoten, compra créditos:</p>
-      <div class="pay-actions">
-        <a id="pay-one"  class="btn primary" rel="noopener" target="_blank">1 uso · 1 €</a>
-        <a id="pay-pack" class="btn outline" rel="noopener" target="_blank">10 usos · 5 €</a>
-        <a id="pay-sub"  class="btn ghost"   rel="noopener" target="_blank">Suscripción · 8 €/mes</a>
+      <div class="topbar-controls">
+        <div class="lang-switcher">
+          <label for="lang-select" class="lang-label" data-i18n="language.label">Language</label>
+          <select id="lang-select" aria-label="Language selector"></select>
+        </div>
+        <div class="wallet" id="wallet" aria-live="polite">
+          <div class="wallet-balance">
+            <span class="wallet-label" data-i18n="wallet.uses">Uses</span>
+            <span id="wallet-count" class="wallet-count">—</span>
+          </div>
+          <div class="wallet-plan" id="wallet-plan"></div>
+          <div class="wallet-actions">
+            <button type="button" id="buy-one" class="wallet-btn" data-i18n="wallet.buy_one" aria-label="Buy one credit">+1</button>
+            <button type="button" id="buy-ten" class="wallet-btn" data-i18n="wallet.buy_ten" aria-label="Buy ten credits">+10</button>
+            <button type="button" id="buy-sub" class="wallet-btn wallet-btn-accent" data-i18n="wallet.buy_sub" aria-label="Buy subscription">Subscription</button>
+          </div>
+          <p class="wallet-note" data-i18n="stripe.explain">Buy credits with Stripe</p>
+        </div>
       </div>
-      <small>Stripe gestiona el pago. No guardamos datos de tarjetas.</small>
-    </section>
+    </header>
 
-    <section class="card" aria-labelledby="result-title">
-      <h3 id="result-title">Resultado</h3>
+    <div id="status-banner" class="status" role="status" aria-live="polite"></div>
 
-      <div role="tablist" aria-label="Vistas de salida" class="tabs">
-        <button role="tab" aria-selected="true"  aria-controls="tab-res"  id="tabbtn-res"  class="tab">Resultado</button>
-        <button role="tab" aria-selected="false" aria-controls="tab-json" id="tabbtn-json" class="tab">JSON</button>
-        <button role="tab" aria-selected="false" aria-controls="tab-raw"  id="tabbtn-raw"  class="tab">Raw</button>
-      </div>
+    <main class="main" id="main">
+      <section class="card card-input" aria-labelledby="input-label">
+        <div class="card-header">
+          <h1 id="input-label" class="card-title" data-i18n="title">Simplify — AI Text Tools</h1>
+          <p class="card-subtitle" data-i18n="subtitle">Summaries, rewrites and translations powered by AI.</p>
+        </div>
+        <label class="sr-only" for="input" data-i18n="textarea_placeholder">Paste your text here…</label>
+        <textarea id="input" rows="10" class="input" data-i18n-placeholder="textarea_placeholder" placeholder="Paste your text here…"></textarea>
+        <div class="card-footer">
+          <div class="pdf-upload">
+            <button type="button" id="pdf-upload" class="secondary" data-i18n="pdf.button">Upload PDF</button>
+            <p class="pdf-hint" data-i18n="pdf.hint">Use a PDF to summarize automatically.</p>
+          </div>
+          <div id="admin-banner" class="admin-flag" hidden data-i18n="admin">Admin mode active</div>
+        </div>
+      </section>
 
-      <div id="loading" hidden>Generando…</div>
+      <section class="card card-chips" aria-labelledby="chips-label">
+        <div class="card-header">
+          <h2 id="chips-label">Actions</h2>
+        </div>
+        <div id="chips-grid" class="chips-grid" role="toolbar" aria-label="AI shortcuts"></div>
+      </section>
 
-      <pre id="tab-res"  role="tabpanel" tabindex="0"  aria-labelledby="tabbtn-res"  class="panel"></pre>
-      <pre id="tab-json" role="tabpanel" tabindex="-1" aria-labelledby="tabbtn-json" class="panel" hidden></pre>
-      <pre id="tab-raw"  role="tabpanel" tabindex="-1" aria-labelledby="tabbtn-raw"  class="panel" hidden></pre>
-    </section>
-  </main>
+      <section class="card card-output" aria-labelledby="output-label">
+        <div class="card-header output-header">
+          <h2 id="output-label">Output</h2>
+          <div class="output-actions">
+            <button type="button" id="copy-result" class="secondary" data-i18n="export.copy">Copy result</button>
+            <button type="button" id="export-docx" class="secondary" data-i18n="export.docx">Export DOCX</button>
+            <button type="button" id="export-pdf" class="secondary" data-i18n="export.pdf">Export PDF</button>
+          </div>
+        </div>
+        <div class="tabs" role="tablist" aria-label="Result views">
+          <button type="button" role="tab" id="tab-result" class="tab" aria-controls="panel-result" aria-selected="true" data-i18n="tabs.result">Result</button>
+          <button type="button" role="tab" id="tab-json" class="tab" aria-controls="panel-json" aria-selected="false" data-i18n="tabs.json">JSON</button>
+          <button type="button" role="tab" id="tab-raw" class="tab" aria-controls="panel-raw" aria-selected="false" data-i18n="tabs.raw">Raw</button>
+        </div>
+        <div id="loader" class="loader" hidden>
+          <span class="loader-dot"></span>
+          <span class="loader-dot"></span>
+          <span class="loader-dot"></span>
+        </div>
+        <article id="panel-result" class="panel" role="tabpanel" tabindex="0" aria-labelledby="tab-result"></article>
+        <pre id="panel-json" class="panel" role="tabpanel" tabindex="-1" aria-labelledby="tab-json" hidden></pre>
+        <pre id="panel-raw" class="panel" role="tabpanel" tabindex="-1" aria-labelledby="tab-raw" hidden></pre>
+      </section>
+    </main>
 
-  <!-- Orden de scripts. Rutas relativas + cache-bust -->
-  <script src="./pay.config.js?v=1758634303801" defer></script>
-  <script src="./pay.guard.js?v=1758634303801"  defer></script>
-  <script src="./chips.js?v=1758634303801"      defer></script>
-  <script src="./pay.ui.js?v=1758634303801"     defer></script>
-  <script src="./main.js?v=1758634303801"       defer></script>
+    <footer class="footer" role="contentinfo">
+      <nav class="footer-links">
+        <a href="./legal/terms.html" target="_blank" rel="noopener" data-i18n="footer.terms">Terms</a>
+        <a href="./legal/privacy.html" target="_blank" rel="noopener" data-i18n="footer.privacy">Privacy</a>
+        <a href="./legal/cookies.html" target="_blank" rel="noopener" data-i18n="footer.cookies">Cookies</a>
+      </nav>
+    </footer>
+  </div>
+
+  <input type="file" id="pdf-input" class="sr-only" accept="application/pdf">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" integrity="sha512-PX8wFFUYgWowKIiMzFxLpy0X58F3RrgPf63HgFUsVTNff7kwh28ykVfoWHz0z7dxyzKDn5XxhxL7sRKqGZo4Xg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js" integrity="sha512-8YgnSUZXoqBYwygJyI072QtdgQXl3k5ufADG7n2AFD+a83H8XTur2qxGn8pY/+bexdFv+DE5jBqFaUG2RgxNCA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.0.1/docx.min.js" integrity="sha512-aDgX6ixkmKuuNHYsYvwdivgLPgAvFp8ZUBKbjsgg7sWXBJgp7wa9u0edPFsKnzGWx/89ZbduCMsZ/HdlIQK5vA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha512-/d6tPguP5AnbcW2CYwiVdc+GqOR/mdrIW6DCe4k74vNysGEKMluSleqrs9jwELyhl725LLhcPLT114F8Cbn7YQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="./main.js" type="module"></script>
 </body>
 </html>
