@@ -91,3 +91,26 @@
 #out{white-space:pre-wrap}
 #loading{display:none;margin:12px 0;color:#111;background:#f4f4f5;border-radius:12px;padding:8px 12px}
 #loading[aria-hidden="false"]{display:block}
+
+:root{--pulse:#2563eb;--pulse-600:#2563eb;--pulse-700:#1d4ed8;--ink:#0f172a;--ring:#93c5fd;--bg:#f6f7fb;--card:#ffffff}
+body{background:var(--bg)}
+.card{background:var(--card);border:1px solid #e5e7eb;border-radius:16px;padding:16px;box-shadow:0 6px 24px rgba(0,0,0,.06);margin:16px 0;animation:pop .25s ease-out}
+@keyframes pop{from{transform:translateY(6px);opacity:.0}to{transform:translateY(0);opacity:1}}
+.btn{display:inline-flex;align-items:center;gap:.5rem;border-radius:999px;padding:.55rem 1rem;text-decoration:none;border:1px solid transparent;transition:transform .08s,box-shadow .08s,background .2s;font-weight:600;font-size:14px;color:#fff;background:var(--pulse);box-shadow:0 4px 14px rgba(37,99,235,.25)}
+.btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(37,99,235,.35)}
+.btn:focus{outline:3px solid var(--ring);outline-offset:2px}
+.btn.primary{background:var(--pulse);border-color:var(--pulse-600)}
+.btn.outline{background:#fff;color:var(--pulse-700);border-color:var(--pulse-600)}
+.btn.ghost{background:linear-gradient(0deg, rgba(37,99,235,.07), rgba(37,99,235,.07)), #fff;color:var(--pulse-700);border-color:#c7d2fe}
+.pay-actions{display:flex;flex-wrap:wrap;gap:.5rem;margin:.5rem 0 0}
+.chips-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin:.75rem 0}
+.chip-card{background:linear-gradient(180deg,#ffffff,#fafafa);border:1px solid #e5e7eb;border-radius:14px;padding:12px;transition:transform .08s,box-shadow .12s}
+.chip-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(2,6,23,.06)}
+.chip-title{font-weight:700;color:var(--ink);margin:0 0 8px 0;font-size:14px}
+.chip-row{display:flex;flex-wrap:wrap;gap:8px}
+.chip-btn{border:1px solid #e5e7eb;background:#fff;border-radius:999px;padding:.35rem .7rem;font:500 13px/1 system-ui,Arial;color:var(--ink);cursor:pointer;transition:transform .06s,background .12s,box-shadow .12s}
+.chip-btn:hover{background:#f3f6ff;transform:translateY(-1px);box-shadow:0 4px 12px rgba(37,99,235,.18)}
+.chip-btn:focus{outline:3px solid var(--ring);outline-offset:2px}
+#out{white-space:pre-wrap}
+#out[hidden]{display:none}
+#loading{display:none;margin:12px 0;color:var(--ink);background:#eef2ff;border:1px dashed #c7d2fe;border-radius:12px;padding:8px 12px}
