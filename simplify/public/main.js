@@ -8,6 +8,7 @@
   const panes   = [$('#tab-res'),   $('#tab-json'),   $('#tab-raw')];
   const loading = $('#loading');
 
+  // Admin (de pay.guard.js o por localStorage)
   const IS_ADMIN = window.SIMPLIFY_IS_ADMIN === true || localStorage.getItem('simplify_admin') === '1';
   const MAX_FREE = (IS_ADMIN ? Infinity : (window.SIMPLIFY_MAX_FREE || 3));
   const KEY = 'simplify_uses';
@@ -79,8 +80,7 @@
 
   btnGen?.addEventListener('click', ()=>{
     const text = (ta?.value||'').trim();
-    const content = text || 'Escribe un texto arriba.';
-    callAI([{role:'user', content}], 320);
+    callAI([{role:'user', content: text || 'Escribe un texto arriba.'}], 320);
   });
   btnHealth?.addEventListener('click', pingHealth);
 
