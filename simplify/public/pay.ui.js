@@ -6,10 +6,12 @@
   const L = (window.SIMPLIFY_PAYLINKS||{});
   const $ = id => document.getElementById(id);
 
+  // Enlaces Stripe (si no hay links en pay.config.js, abre /legal/checkout.html)
   const one  = $('pay-one');  if(one)  one.href  = L.ONE   || '/legal/checkout.html';
   const pack = $('pay-pack'); if(pack) pack.href = L.PACK10|| '/legal/checkout.html';
   const sub  = $('pay-sub');  if(sub)  sub.href  = L.SUB   || '/legal/checkout.html';
 
+  // Contador visible
   const usesLeft = $('uses-left');
   const upd = ()=>{ if(usesLeft) usesLeft.textContent = `${left()}/${max}`; };
   upd();

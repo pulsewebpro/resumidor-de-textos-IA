@@ -1,62 +1,66 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Simplify AI</title>
-  <meta name="description" content="Simplify AI – Textos en 1 click" />
-  <link rel="canonical" href="https://simplify.pulsewebpro.com/" />
-  <link rel="stylesheet" href="./styles.css" />
-  <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, sans-serif; background:#F7F8FA; margin:0; }
-    .wrap { max-width: 980px; margin: 40px auto; padding: 24px; background:#fff; border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,.06); }
-    h1 { margin:0 0 8px; }
-    .muted { color:#667; margin:0 0 24px; }
-    textarea { width:100%; min-height:160px; font: inherit; padding:12px; border-radius:8px; border:1px solid #ddd; }
-    .row { display:flex; gap:8px; margin-top:12px; }
-    button { padding:10px 14px; border-radius:10px; border:1px solid #2B6CF6; background:#2B6CF6; color:#fff; cursor:pointer; }
-    button.sec { background:#fff; color:#2B6CF6; }
-    #out { white-space: pre-wrap; line-height:1.6; padding:12px; border:1px solid #eee; border-radius:8px; margin-top:16px; background:#fafafa; min-height:80px; }
-  </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Simplify AI — Textos en 1 click</title>
+  <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-  <div class="wrap">
+  <main class="container">
     <h1>Simplify AI – Textos en 1 click</h1>
-    <p class="muted">Prueba rápida para verificar despliegue y la API.</p>
+    <p class="subtle">Prueba rápida para verificar despliegue y la API.</p>
 
-    <textarea id="txt" placeholder="Pega tu texto aquí…"></textarea>
-    <div class="row">
-      <button id="go">Generar (ping API)</button>
-      <button class="sec" id="health">Probar /api/health</button>
-    </div>
-    <div id="out"></div>
-  </div>
+    <section class="card" aria-labelledby="input-title">
+      <h2 id="input-title" class="sr-only">Entrada</h2>
+      <textarea id="input" rows="10" placeholder="Pega tu texto aquí…"></textarea>
+      <div class="actions">
+        <button id="btn-gen" class="btn primary">Generar (ping API)</button>
+        <button id="btn-health" class="btn outline">Probar /api/health</button>
+      </div>
+    </section>
 
-  <script type="module" src="./main.js?v=1758584861000"></script>
-  <script>
-  // helpers para probar sin tocar main.js todavía:
-  const out = document.getElementById('out');
-  document.getElementById('health').onclick = async () => {
-    out.textContent = 'Probando /api/health…';
-    try {
-      const r = await fetch('/api/health');
-      out.textContent = (r.status + ' ' + (await r.text()));
-    } catch (e) { out.textContent = e.message; }
-  };
-  document.getElementById('go').onclick = async () => {
-    const body = {
-      prompt: [
-        { role: 'system', content: 'Devuelve solo JSON {"ok":true,"outputs":[{"label":"Result","content":"texto"}]}' },
-        { role: 'user', content: 'Escribe 1 frase positiva.' }
-      ],
-      maxTokens: 200
-    };
-    out.textContent = 'Llamando /api/ai…';
-    try {
-      const r = await fetch('/api/ai', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
-      out.textContent = await r.text();
-    } catch (e) { out.textContent = e.message; }
-  };
-  </script>
+    <!-- CHIPS -->
+    <section class="card" aria-labelledby="chips-title">
+      <h3 id="chips-title">Acciones rápidas</h3>
+      <div id="chips-panel" class="chips-grid"></div>
+    </section>
+
+    <!-- PAGO -->
+    <section id="pay-panel" class="card" aria-labelledby="pay-title">
+      <h3 id="pay-title">Créditos y suscripción</h3>
+      <p>Te quedan <strong id="uses-left">3/3</strong> usos gratis. Cuando se agoten, compra créditos:</p>
+      <div class="pay-actions">
+        <a id="pay-one"  class="btn primary" rel="noopener" target="_blank">1 uso · 1 €</a>
+        <a id="pay-pack" class="btn outline" rel="noopener" target="_blank">10 usos · 5 €</a>
+        <a id="pay-sub"  class="btn ghost"   rel="noopener" target="_blank">Suscripción · 8 €/mes</a>
+      </div>
+      <small>Stripe gestiona el pago. No guardamos datos de tarjetas.</small>
+    </section>
+
+    <!-- RESULTADO (tabs accesibles) -->
+    <section class="card" aria-labelledby="result-title">
+      <h3 id="result-title">Resultado</h3>
+
+      <div role="tablist" aria-label="Vistas de salida" class="tabs">
+        <button role="tab" aria-selected="true" aria-controls="tab-res" id="tabbtn-res"  class="tab">Resultado</button>
+        <button role="tab" aria-selected="false" aria-controls="tab-json" id="tabbtn-json" class="tab">JSON</button>
+        <button role="tab" aria-selected="false" aria-controls="tab-raw" id="tabbtn-raw"  class="tab">Raw</button>
+      </div>
+
+      <div id="loading" hidden>Generando…</div>
+
+      <pre id="tab-res"  role="tabpanel" tabindex="0" aria-labelledby="tabbtn-res"  class="panel"></pre>
+      <pre id="tab-json" role="tabpanel" tabindex="-1" aria-labelledby="tabbtn-json" class="panel" hidden></pre>
+      <pre id="tab-raw"  role="tabpanel" tabindex="-1" aria-labelledby="tabbtn-raw"  class="panel" hidden></pre>
+    </section>
+  </main>
+
+  <!-- Scripts (orden importante) -->
+  <script src="/pay.config.js"></script>
+  <script src="/pay.guard.js"></script>
+  <script src="/chips.js"></script>
+  <script src="/pay.ui.js"></script>
+  <script src="/main.js"></script>
 </body>
 </html>

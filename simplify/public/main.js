@@ -1,69 +1,110 @@
 (() => {
   const $ = s => document.querySelector(s);
+  const ta = $('#input');
+  const btnGen = $('#btn-gen');
+  const btnHealth = $('#btn-health');
 
-  // Elementos base
-  const ta = $('#input') || document.querySelector('textarea');
-  const gen = $('#btn-gen') || document.querySelector('button[data-action="gen"]') || document.querySelector('button');
-  let out = $('#out'); if(!out){ out=document.createElement('pre'); out.id='out'; out.hidden=true; document.body.appendChild(out); }
-  out.setAttribute('aria-live','polite'); out.setAttribute('aria-busy','false'); out.dataset.ready=out.dataset.ready||'0';
+  const tabBtns = [$('#tabbtn-res'), $('#tabbtn-json'), $('#tabbtn-raw')];
+  const panes   = [$('#tab-res'),   $('#tab-json'),   $('#tab-raw')];
+  const loading = $('#loading');
 
-  // Loader
-  let loading = $('#loading'); 
-  if(!loading){ loading=document.createElement('div'); loading.id='loading'; loading.textContent='Generando…';
-    (out.parentElement||document.body).insertBefore(loading,out);
+  const MAX_FREE = window.SIMPLIFY_MAX_FREE || 3;
+  const KEY = 'simplify_uses';
+  const getUses = () => Number(localStorage.getItem(KEY) || 0);
+  const addUse  = () => localStorage.setItem(KEY, String(getUses()+1));
+
+  function setLoading(v){
+    if(v){ loading.hidden=false; panes.forEach(p=>p.hidden=true); }
+    else { loading.hidden=true; }
   }
-  const showLoading=(b)=>{ loading.style.display=b?'block':'none'; out.setAttribute('aria-busy',String(b)); };
+  function setTab(idx){
+    tabBtns.forEach((b,i)=>{ b.setAttribute('aria-selected', String(i===idx)); });
+    panes.forEach((p,i)=>{ p.hidden = i!==idx; p.tabIndex = i===idx ? 0 : -1; });
+    panes[idx].focus();
+  }
+  setTab(0);
 
-  // Normaliza contenido
-  const unwrap = (c) => {
-    if (typeof c==='string') {
-      const t=c.trim();
-      if ((t.startsWith('{')&&t.endsWith('}'))||(t.startsWith('[')&&t.endsWith(']'))) {
-        try{ const j=JSON.parse(t); if(j?.ok===true && Array.isArray(j.outputs)&&j.outputs[0]?.content) return j.outputs[0].content; return JSON.stringify(j,null,2);}catch{}
-      }
-      return c;
+  async function callAI(messages, maxTokens=500){
+    // límite gratis
+    if(getUses() >= MAX_FREE){
+      document.querySelector('#pay-panel')?.scrollIntoView({behavior:'smooth',block:'start'});
+      alert('Has usado los 3 intentos gratis. Compra créditos para seguir usando Simplify.');
+      return;
     }
-    if (c?.ok===true && Array.isArray(c.outputs) && c.outputs[0]?.content) return c.outputs[0].content;
-    try{ return JSON.stringify(c,null,2);}catch{ return String(c??'');}
-  };
 
-  async function callAIWithPrompt(messages, maxTokens=500){
-    showLoading(true); out.hidden=true;
+    setLoading(true);
     try{
-      const r = await fetch('/api/ai',{method:'POST',headers:{'Content-Type':'application/json'},body: JSON.stringify({ prompt: messages, maxTokens })});
-      const j = await r.json();
-      out.textContent = unwrap(j?.outputs?.[0]?.content ?? j);
-      out.dataset.ready='1'; out.hidden=false;
-    }catch(e){
-      out.textContent = 'Error al generar. Intenta de nuevo.';
-      out.dataset.ready='1'; out.hidden=false;
-    }finally{
-      showLoading(false);
+      const r = await fetch('/api/ai', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ prompt: messages, maxTokens })
+      });
+      const raw = await r.text();           // conserva raw
+      let json=null; try{ json = JSON.parse(raw); }catch{}
+      const content = json?.outputs?.[0]?.content ?? raw;
+
+      panes[0].textContent = typeof content==='string' ? content : JSON.stringify(content,null,2);
+      panes[1].textContent = json ? JSON.stringify(json,null,2) : '(sin JSON)';
+      panes[2].textContent = raw;
+
+      setLoading(false);
+      setTab(0);
+      addUse();
       window.dispatchEvent(new Event('ai:used'));
-      window.scrollTo({top: out.getBoundingClientRect().top + window.scrollY - 120, behavior:'smooth'});
+    }catch(err){
+      setLoading(false);
+      panes[0].textContent = 'Error al generar. Intenta de nuevo.';
+      setTab(0);
     }
   }
 
-  async function callAIInput(text){ return callAIWithPrompt([{role:'user',content:text||'Escribe tu texto arriba.'}], 320); }
+  async function pingHealth(){
+    setTab(1);
+    panes[0].textContent = '';
+    panes[1].textContent = '';
+    panes[2].textContent = '';
+    setLoading(true);
+    try{
+      const r = await fetch('/api/health');
+      const j = await r.json();
+      setLoading(false);
+      panes[1].textContent = JSON.stringify(j,null,2);
+      setTab(1);
+    }catch(e){
+      setLoading(false);
+      panes[1].textContent = 'Error /api/health';
+    }
+  }
 
-  // Render de chips en tarjetas
+  // Acciones principales
+  btnGen?.addEventListener('click', ()=>{
+    const text = (ta?.value||'').trim();
+    callAI([{role:'user', content: text || 'Escribe un texto arriba.'}], 320);
+  });
+  btnHealth?.addEventListener('click', pingHealth);
+
+  // Tabs click
+  tabBtns.forEach((b,i)=> b?.addEventListener('click', ()=> setTab(i)));
+
+  // Render de chips
   const mount = $('#chips-panel');
-  const CATS = Array.isArray(window.SIMPLIFY_CHIPS)?window.SIMPLIFY_CHIPS:[];
-  if (mount && CATS.length){
+  const CATS = Array.isArray(window.SIMPLIFY_CHIPS) ? window.SIMPLIFY_CHIPS : [];
+  if(mount && CATS.length){
     mount.innerHTML='';
-    CATS.forEach(group=>{
+    CATS.forEach(g=>{
       const card=document.createElement('div'); card.className='chip-card';
-      const h=document.createElement('div'); h.className='chip-title'; h.textContent=group.cat; card.appendChild(h);
+      const ttl=document.createElement('div'); ttl.className='chip-title'; ttl.textContent=g.cat; card.appendChild(ttl);
       const row=document.createElement('div'); row.className='chip-row'; card.appendChild(row);
-      (group.items||[]).forEach(ch=>{
-        const b=document.createElement('button'); b.type='button'; b.className='chip-btn'; b.textContent=ch.label;
-        b.addEventListener('click',()=>{ const txt=ta?.value?.trim()||''; const msgs=ch.build(txt); callAIWithPrompt(msgs); });
+      (g.items||[]).forEach(ch=>{
+        const b=document.createElement('button'); b.className='chip-btn'; b.type='button'; b.textContent=ch.label;
+        b.addEventListener('click', ()=>{
+          const t=(ta?.value||'').trim();
+          const msgs = ch.build(t);
+          callAI(msgs, 500);
+        });
         row.appendChild(b);
       });
       mount.appendChild(card);
     });
   }
-
-  // Botón “Generar”
-  gen && gen.addEventListener('click', () => callAIInput(ta?.value?.trim() || ''));
 })();
