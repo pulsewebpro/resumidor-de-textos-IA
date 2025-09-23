@@ -8,10 +8,12 @@
   const panes   = [$('#tab-res'),   $('#tab-json'),   $('#tab-raw')];
   const loading = $('#loading');
 
-  const MAX_FREE = window.SIMPLIFY_MAX_FREE || 3;
+  const IS_ADMIN = window.SIMPLIFY_IS_ADMIN === true || localStorage.getItem('simplify_admin') === '1';
+  const MAX_FREE = (IS_ADMIN ? Infinity : (window.SIMPLIFY_MAX_FREE || 3));
   const KEY = 'simplify_uses';
+
   const getUses = () => Number(localStorage.getItem(KEY) || 0);
-  const addUse  = () => localStorage.setItem(KEY, String(getUses()+1));
+  const addUse  = () => { if (!IS_ADMIN && Number.isFinite(MAX_FREE)) localStorage.setItem(KEY, String(getUses()+1)); };
 
   function setLoading(v){
     if(v){ loading.hidden=false; panes.forEach(p=>p.hidden=true); }
@@ -25,8 +27,7 @@
   setTab(0);
 
   async function callAI(messages, maxTokens=500){
-    // límite gratis
-    if(getUses() >= MAX_FREE){
+    if (!IS_ADMIN && Number.isFinite(MAX_FREE) && getUses() >= MAX_FREE){
       document.querySelector('#pay-panel')?.scrollIntoView({behavior:'smooth',block:'start'});
       alert('Has usado los 3 intentos gratis. Compra créditos para seguir usando Simplify.');
       return;
@@ -39,7 +40,7 @@
         headers:{'Content-Type':'application/json'},
         body: JSON.stringify({ prompt: messages, maxTokens })
       });
-      const raw = await r.text();           // conserva raw
+      const raw = await r.text();
       let json=null; try{ json = JSON.parse(raw); }catch{}
       const content = json?.outputs?.[0]?.content ?? raw;
 
@@ -76,35 +77,12 @@
     }
   }
 
-  // Acciones principales
   btnGen?.addEventListener('click', ()=>{
     const text = (ta?.value||'').trim();
-    callAI([{role:'user', content: text || 'Escribe un texto arriba.'}], 320);
+    const content = text || 'Escribe un texto arriba.';
+    callAI([{role:'user', content}], 320);
   });
   btnHealth?.addEventListener('click', pingHealth);
 
-  // Tabs click
   tabBtns.forEach((b,i)=> b?.addEventListener('click', ()=> setTab(i)));
-
-  // Render de chips
-  const mount = $('#chips-panel');
-  const CATS = Array.isArray(window.SIMPLIFY_CHIPS) ? window.SIMPLIFY_CHIPS : [];
-  if(mount && CATS.length){
-    mount.innerHTML='';
-    CATS.forEach(g=>{
-      const card=document.createElement('div'); card.className='chip-card';
-      const ttl=document.createElement('div'); ttl.className='chip-title'; ttl.textContent=g.cat; card.appendChild(ttl);
-      const row=document.createElement('div'); row.className='chip-row'; card.appendChild(row);
-      (g.items||[]).forEach(ch=>{
-        const b=document.createElement('button'); b.className='chip-btn'; b.type='button'; b.textContent=ch.label;
-        b.addEventListener('click', ()=>{
-          const t=(ta?.value||'').trim();
-          const msgs = ch.build(t);
-          callAI(msgs, 500);
-        });
-        row.appendChild(b);
-      });
-      mount.appendChild(card);
-    });
-  }
 })();

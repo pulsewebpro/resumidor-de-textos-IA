@@ -1,22 +1,29 @@
-(function(){
-  const k='simplify_uses';
-  const max=Number(window.SIMPLIFY_MAX_FREE||3);
-  const get=()=>Number(localStorage.getItem(k)||0);
-  const inc=()=>localStorage.setItem(k, get()+1);
-  const chooseLink=()=>{
-    const L=window.SIMPLIFY_PAYLINKS||{};
-    return L.ONE||L.PACK10||L.SUB||'/legal/checkout.html';
-  };
-  const ofetch=window.fetch.bind(window);
-  window.fetch=async function(u,o){
-    const isAI= typeof u==='string' && u.includes('/api/ai') && String((o&&o.method)||'POST').toUpperCase()==='POST';
-    if(isAI && get()>=max){
-      alert('Has agotado tus 3 usos gratis. Te llevamos a Stripe para comprar créditos.');
-      window.open(chooseLink(),'_blank');
-      return new Response(JSON.stringify({ok:false,error:'Free quota exceeded'}),{status:402,headers:{'Content-Type':'application/json'}});
+(() => {
+  const USES_KEY = 'simplify_uses';
+  const ADMIN_KEY = 'simplify_admin';
+
+  // Activación por URL: ?admin=on | ?admin=off
+  try {
+    const q = new URLSearchParams(location.search);
+    if (q.get('admin') === 'on')  localStorage.setItem(ADMIN_KEY, '1');
+    if (q.get('admin') === 'off') localStorage.removeItem(ADMIN_KEY);
+  } catch {}
+
+  const isAdmin = localStorage.getItem(ADMIN_KEY) === '1';
+  // Hacemos visibles estas señales para otros scripts
+  window.SIMPLIFY_IS_ADMIN = isAdmin;
+  window.SIMPLIFY_MAX_FREE = isAdmin ? Infinity : (window.SIMPLIFY_MAX_FREE || 3);
+
+  // Helper para reset desde consola
+  window.__simplifyReset = () => localStorage.setItem(USES_KEY, '0');
+
+  // Atajo rápido: Ctrl+Alt+A -> toggle admin y recarga
+  document.addEventListener('keydown', (e) => {
+    const k = e.key?.toLowerCase();
+    if (e.ctrlKey && e.altKey && k === 'a') {
+      if (localStorage.getItem(ADMIN_KEY) === '1') localStorage.removeItem(ADMIN_KEY);
+      else localStorage.setItem(ADMIN_KEY, '1');
+      location.reload();
     }
-    const r=await ofetch(u,o);
-    if(isAI && r.ok){ try{inc();}catch{} }
-    return r;
-  };
+  });
 })();
