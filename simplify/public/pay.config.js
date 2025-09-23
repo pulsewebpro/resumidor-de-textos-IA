@@ -1,7 +1,1 @@
-window.SIMPLIFY_MAX_FREE = 3; // 3 usos gratis
-// Rellena con tus Payment Links reales de Stripe:
-window.SIMPLIFY_PAYLINKS = {
-  ONE:"undefined",
-  PACK10:"undefined",
-  SUB:"undefined" // 8 €/mes
-};
+window.SIMPLIFY_FLAGS = Object.assign({ USE_STRIPE: true, USE_I18N: true, LOG_MIN: true }, window.SIMPLIFY_FLAGS || {});

@@ -8,30 +8,38 @@
 </head>
 <body>
   <main class="container">
-    <h1>Simplify AI – Textos en 1 click</h1>
-    <p class="subtle">Prueba rápida para verificar despliegue y la API.</p>
+    <header class="page-header">
+      <div>
+        <h1 id="app-title" data-i18n="title">Simplify AI – Textos en 1 click</h1>
+        <p id="app-subtitle" class="subtle" data-i18n="subtitle">Prueba rápida para verificar despliegue y la API.</p>
+      </div>
+      <label class="lang-switch" for="lang-select">
+        <span class="sr-only">Idioma</span>
+        <select id="lang-select" aria-label="Idioma"></select>
+      </label>
+    </header>
 
     <section class="card" aria-labelledby="input-title">
       <h2 id="input-title" class="sr-only">Entrada</h2>
-      <textarea id="input" rows="10" placeholder="Pega tu texto aquí…"></textarea>
+      <textarea id="input" rows="10" placeholder="Pega tu texto aquí…" data-i18n-placeholder="textarea.placeholder"></textarea>
       <div class="actions">
-        <button id="btn-gen" class="btn primary">Generar (ping API)</button>
-        <button id="btn-health" class="btn outline">Probar /api/health</button>
+        <button id="btn-gen" class="btn primary" data-i18n="chips.generate">Generar (ping API)</button>
+        <button id="btn-health" class="btn outline" data-i18n="chips.health">Probar /api/health</button>
       </div>
     </section>
 
     <section class="card" aria-labelledby="chips-title">
-      <h3 id="chips-title">Acciones rápidas</h3>
+      <h3 id="chips-title" data-i18n="chips.title">Acciones rápidas</h3>
       <div id="chips-panel" class="chips-grid"></div>
     </section>
 
     <section id="pay-panel" class="card" aria-labelledby="pay-title">
-      <h3 id="pay-title">Créditos y suscripción</h3>
-      <p>Te quedan <strong id="uses-left">3/3</strong> usos gratis. Cuando se agoten, compra créditos:</p>
+      <h3 id="pay-title" data-i18n="actions.heading">Créditos y suscripción</h3>
+      <p id="pay-intro" data-i18n-template="actions.intro">Te quedan <strong id="uses-left">3</strong> usos gratis. Cuando se agoten, compra créditos:</p>
       <div class="pay-actions">
-        <a id="pay-one"  class="btn primary" rel="noopener" target="_blank">1 uso · 1 €</a>
-        <a id="pay-pack" class="btn outline" rel="noopener" target="_blank">10 usos · 5 €</a>
-        <a id="pay-sub"  class="btn ghost"   rel="noopener" target="_blank">Suscripción · 8 €/mes</a>
+        <button id="pay-one"  class="btn primary" data-plan="one" data-i18n="actions.buy1">1 uso · 1 €</button>
+        <button id="pay-pack" class="btn outline" data-plan="ten" data-i18n="actions.buy10">10 usos · 5 €</button>
+        <button id="pay-sub"  class="btn ghost"   data-plan="sub" data-i18n="actions.subscribe">Suscripción · 8 €/mes</button>
       </div>
       <small>Stripe gestiona el pago. No guardamos datos de tarjetas.</small>
     </section>
@@ -40,9 +48,9 @@
       <h3 id="result-title">Resultado</h3>
 
       <div role="tablist" aria-label="Vistas de salida" class="tabs">
-        <button role="tab" aria-selected="true"  aria-controls="tab-res"  id="tabbtn-res"  class="tab">Resultado</button>
-        <button role="tab" aria-selected="false" aria-controls="tab-json" id="tabbtn-json" class="tab">JSON</button>
-        <button role="tab" aria-selected="false" aria-controls="tab-raw"  id="tabbtn-raw"  class="tab">Raw</button>
+        <button role="tab" aria-selected="true"  aria-controls="tab-res"  id="tabbtn-res"  class="tab" data-i18n="tabs.result">Resultado</button>
+        <button role="tab" aria-selected="false" aria-controls="tab-json" id="tabbtn-json" class="tab" data-i18n="tabs.json">JSON</button>
+        <button role="tab" aria-selected="false" aria-controls="tab-raw"  id="tabbtn-raw"  class="tab" data-i18n="tabs.raw">Raw</button>
       </div>
 
       <div id="loading" hidden>Generando…</div>
@@ -52,6 +60,17 @@
       <pre id="tab-raw"  role="tabpanel" tabindex="-1" aria-labelledby="tabbtn-raw"  class="panel" hidden></pre>
     </section>
   </main>
+
+  <div id="purchase-modal" class="modal" hidden>
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="purchase-title" tabindex="-1">
+      <h2 id="purchase-title" data-i18n="modal.title">Sin créditos disponibles</h2>
+      <p id="purchase-message" data-i18n="modal.message">Compra créditos o suscríbete para seguir usando Simplify.</p>
+      <div class="modal__actions">
+        <button id="modal-go-plans" class="btn primary" data-i18n="modal.cta">Ver planes</button>
+        <button id="modal-close" class="btn outline" data-i18n="modal.close">Cerrar</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Orden de scripts. Rutas relativas + cache-bust -->
   <script src="./pay.config.js?v=1758634303801" defer></script>

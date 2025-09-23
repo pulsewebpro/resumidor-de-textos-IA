@@ -1,74 +1,108 @@
-export default async function handler(req, res) {
-  // --- safe setHeader (evita "Invalid character in header content")
-  const _o = res.setHeader?.bind(res);
-  const clean = (v, fb='') => {
-    if (Array.isArray(v)) v = v[0];
-    v = v==null ? fb : (typeof v==='string'?v:String(v));
-    v = v.replace(/[\u0000-\u001F\u007F\r\n]+/g,'').trim();
-    return v || String(fb);
-  };
-  res.setHeader = (n,v)=>{
-    if (!n) return _o(n,v);
-    if (n.toLowerCase()==='access-control-allow-origin') return _o('Access-Control-Allow-Origin', clean(v,'*'));
-    if (Array.isArray(v)) v = v.join(',');
-    return _o(n, clean(v,''));
-  };
+import OpenAI from 'openai';
+import { applyCors, extractBearerToken, readJSONBody, sendJSON } from './_utils/http.js';
+import { consumeWalletToken } from './claim.js';
 
-  // --- CORS
-  let origin = process.env.ALLOWED_ORIGIN ?? '*';
-  try { const p = typeof origin==='string' ? JSON.parse(origin) : origin; if (Array.isArray(p)&&p[0]) origin=p[0]; } catch {}
-  if (Array.isArray(origin)) origin = origin[0] ?? '*';
-  origin = clean(typeof origin==='string' ? origin : '*','*');
-  res.setHeader('Access-Control-Allow-Origin', origin);
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  if (req.method==='OPTIONS') { res.statusCode=204; return res.end(); }
-  if (req.method!=='POST') { res.statusCode=405; return res.end(JSON.stringify({ok:false,error:'Method Not Allowed'})); }
+export const config = {
+  runtime: 'nodejs18.x'
+};
 
-  // --- body parse tolerante
-  let body = req.body;
-  if (!body) {
-    try {
-      const chunks=[]; await new Promise(r=>{req.on('data',c=>chunks.push(c));req.on('end',r);});
-      body = chunks.length ? JSON.parse(Buffer.concat(chunks).toString('utf8')) : {};
-    } catch { body = {}; }
-  }
+let openaiClient = null;
 
-  // --- prompt[] o input->prompt[]
-  let { prompt: composedPrompt, input, maxTokens } = body || {};
-  if (!Array.isArray(composedPrompt) && typeof input==='string' && input.trim()) {
-    composedPrompt = [{ role:'user', content: input.trim() }];
-  }
-  if (!Array.isArray(composedPrompt) || composedPrompt.length===0) {
-    res.statusCode=400;
-    res.setHeader('Content-Type','application/json; charset=utf-8');
-    return res.end(JSON.stringify({ ok:false, error:'Prompt inválido.' }));
-  }
-
-  // --- llamada a OpenAI (opcional; fallback si falta clave)
+function getOpenAIClient() {
   const apiKey = process.env.OPENAI_API_KEY;
-  const max_tokens = Math.max(1, Math.min(2048, Number(maxTokens)||512));
-  let text = '';
+  if (!apiKey) {
+    return { ok: false, code: 'ENV_MISSING', key: 'OPENAI_API_KEY' };
+  }
+  if (!openaiClient) {
+    openaiClient = new OpenAI({ apiKey });
+  }
+  return openaiClient;
+}
 
-  if (apiKey) {
-    try {
-      const r = await fetch('https://api.openai.com/v1/chat/completions', {
-        method:'POST',
-        headers:{ 'Authorization':`Bearer ${apiKey}`, 'Content-Type':'application/json' },
-        body: JSON.stringify({ model:'gpt-4o-mini', messages: composedPrompt, max_tokens, temperature:0.3 })
-      });
-      const d = await r.json();
-      text = d?.choices?.[0]?.message?.content?.trim?.() || '';
-    } catch(e) {
-      console.error('openai error', e?.message||e);
+function normalizePrompt(body) {
+  if (!body || typeof body !== 'object') return null;
+  let { prompt, input, maxTokens } = body;
+  if (!Array.isArray(prompt) && typeof input === 'string' && input.trim()) {
+    prompt = [{ role: 'user', content: input.trim() }];
+  }
+  if (!Array.isArray(prompt) || prompt.length === 0) {
+    return null;
+  }
+  return { prompt, maxTokens };
+}
+
+export default async function handler(req, res) {
+  if (applyCors(req, res)) return;
+  if (req.method !== 'POST') {
+    return sendJSON(res, 405, { ok: false, code: 'METHOD_NOT_ALLOWED' });
+  }
+
+  let body = {};
+  try {
+    body = await readJSONBody(req);
+  } catch (error) {
+    if (error?.message === 'PAYLOAD_TOO_LARGE') {
+      return sendJSON(res, 413, { ok: false, code: 'PAYLOAD_TOO_LARGE' });
     }
-  }
-  if (!text) {
-    // --- fallback sin exponer datos (no logs de usuario)
-    const userText = composedPrompt.map(m=>m?.role==='user'?m.content:'').filter(Boolean).join('\n').slice(0,2000);
-    text = userText || 'OK';
+    if (error?.message === 'INVALID_JSON') {
+      return sendJSON(res, 400, { ok: false, code: 'INVALID_JSON' });
+    }
+    body = {};
   }
 
-  res.setHeader('Content-Type','application/json; charset=utf-8');
-  res.end(JSON.stringify({ ok:true, outputs:[{ label:'default', content:text }] }));
+  const authToken = extractBearerToken(req);
+  if (!authToken) {
+    return sendJSON(res, 401, { ok: false, code: 'INVALID_TOKEN' });
+  }
+
+  const promptData = normalizePrompt(body);
+  if (!promptData) {
+    return sendJSON(res, 400, { ok: false, code: 'INVALID_PROMPT' });
+  }
+
+  const openai = getOpenAIClient();
+  if (openai?.ok === false) {
+    return sendJSON(res, 500, openai);
+  }
+
+  const walletUserId = body.walletUserId || req.headers['x-wallet-user'] || null;
+
+  const claimResult = await consumeWalletToken(authToken, { walletUserId });
+  if (claimResult?.ok === false) {
+    const status = claimResult.code === 'NO_CREDITS' || claimResult.code === 'SUB_INACTIVE' ? 402 : 401;
+    return sendJSON(res, status, { ok: false, code: claimResult.code });
+  }
+
+  if (claimResult?.token) {
+    res.setHeader('x-simplify-token', claimResult.token);
+  }
+
+  const maxTokens = Math.max(1, Math.min(2048, Number(promptData.maxTokens) || 512));
+  let content = '';
+
+  try {
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: promptData.prompt,
+      max_tokens: maxTokens,
+      temperature: 0.3
+    });
+    content = completion?.choices?.[0]?.message?.content?.trim?.() || '';
+  } catch (error) {
+    return sendJSON(res, 502, { ok: false, code: 'OPENAI_ERROR', message: error?.message || 'OpenAI request failed' });
+  }
+
+  if (!content) {
+    content = '';
+  }
+
+  return sendJSON(res, 200, {
+    ok: true,
+    outputs: [
+      {
+        label: 'Result',
+        content
+      }
+    ]
+  });
 }
