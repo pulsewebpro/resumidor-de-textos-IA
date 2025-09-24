@@ -13,12 +13,32 @@
 
     // Fallback directo si main.js no está listo
     async function callAI_fallback(messages, maxTokens=500){
+      const token = localStorage.getItem('SIMPLIFY_WALLET');
+      const userId = window.__simplifyUserId || localStorage.getItem('SIMPLIFY_USER_ID');
+      if (!token) {
+        window.dispatchEvent(new CustomEvent('wallet:error', { detail: { code: 'NO_CREDITS' } }));
+        return;
+      }
       const rEl  = document.getElementById('tab-res');
       const jEl  = document.getElementById('tab-json');
       const wEl  = document.getElementById('tab-raw');
       try{
-        const r = await fetch('/api/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:messages,maxTokens})});
+        const r = await fetch('/api/ai',{
+          method:'POST',
+          headers:{
+            'Content-Type':'application/json',
+            'Authorization':`Bearer ${token}`,
+            'x-wallet-user':userId||''
+          },
+          body:JSON.stringify({prompt:messages,maxTokens})
+        });
         const raw = await r.text(); let json=null; try{ json=JSON.parse(raw);}catch{}
+        const newTok = r.headers.get('x-simplify-token') || json?.token;
+        if (newTok) localStorage.setItem('SIMPLIFY_WALLET', newTok);
+        if (!r.ok){
+          window.dispatchEvent(new CustomEvent('wallet:error', { detail: { code: json?.code || 'ERROR' } }));
+          return;
+        }
         const content = json?.outputs?.[0]?.content ?? raw;
         if (rEl) rEl.textContent = typeof content==='string'?content:JSON.stringify(content,null,2);
         if (jEl) jEl.textContent = json?JSON.stringify(json,null,2):'(sin JSON)';

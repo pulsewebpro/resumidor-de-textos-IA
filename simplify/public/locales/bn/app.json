@@ -1,0 +1,23 @@
+{
+  "title": "Simplify AI – Summaries in one click",
+  "subtitle": "Quick check to verify deployment and the API.",
+  "textarea.placeholder": "Paste your text here…",
+  "chips.generate": "Generate",
+  "chips.health": "Check /api/health",
+  "chips.title": "Quick actions",
+  "actions.heading": "Credits & subscription",
+  "actions.intro": "You have {uses} uses left. Buy more credits when you run out:",
+  "actions.buy1": "1 use · €1",
+  "actions.buy10": "10 uses · €5",
+  "actions.subscribe": "Subscription · €8/mo",
+  "toast.nocredits": "No credits left. Purchase a plan to continue.",
+  "toast.envmissing": "Service unavailable. Missing environment configuration.",
+  "toast.checkout": "Checkout is temporarily unavailable.",
+  "tabs.result": "Result",
+  "tabs.json": "JSON",
+  "tabs.raw": "Raw",
+  "modal.title": "No credits available",
+  "modal.message": "Buy credits or subscribe to keep using Simplify.",
+  "modal.cta": "View plans",
+  "modal.close": "Close"
+}

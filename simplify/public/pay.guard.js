@@ -1,28 +1,34 @@
 (() => {
-  const USES_KEY = 'simplify_uses';
-  const ADMIN_KEY = 'simplify_admin';
+  const ADMIN_KEY = 'ADMIN';
 
-  // Toggle por URL
+  function setAdmin(on) {
+    if (on) localStorage.setItem(ADMIN_KEY, 'on');
+    else localStorage.removeItem(ADMIN_KEY);
+    window.SIMPLIFY_IS_ADMIN = on === true;
+    window.dispatchEvent(new Event('admin:toggle'));
+  }
+
   try {
     const q = new URLSearchParams(location.search);
-    if (q.get('admin') === 'on')  localStorage.setItem(ADMIN_KEY, '1');
-    if (q.get('admin') === 'off') localStorage.removeItem(ADMIN_KEY);
+    if (q.get('admin') === 'on') setAdmin(true);
+    if (q.get('admin') === 'off') setAdmin(false);
   } catch {}
 
-  const isAdmin = localStorage.getItem(ADMIN_KEY) === '1';
-  window.SIMPLIFY_IS_ADMIN = isAdmin;
-  window.SIMPLIFY_MAX_FREE = isAdmin ? Infinity : (window.SIMPLIFY_MAX_FREE || 3);
+  if (!window.SIMPLIFY_IS_ADMIN) {
+    window.SIMPLIFY_IS_ADMIN = localStorage.getItem(ADMIN_KEY) === 'on';
+  }
 
-  // Reset rápido desde consola
-  window.__simplifyReset = () => localStorage.setItem(USES_KEY, '0');
-
-  // Atajo: Ctrl+Alt+A  -> alterna admin y recarga
   document.addEventListener('keydown', (e) => {
     const k = e.key?.toLowerCase();
     if (e.ctrlKey && e.altKey && k === 'a') {
-      if (localStorage.getItem(ADMIN_KEY) === '1') localStorage.removeItem(ADMIN_KEY);
-      else localStorage.setItem(ADMIN_KEY, '1');
-      location.reload();
+      const isAdmin = localStorage.getItem(ADMIN_KEY) === 'on';
+      setAdmin(!isAdmin);
     }
   });
+
+  window.__simplifyAdmin = {
+    enable: () => setAdmin(true),
+    disable: () => setAdmin(false),
+    isAdmin: () => localStorage.getItem(ADMIN_KEY) === 'on'
+  };
 })();
