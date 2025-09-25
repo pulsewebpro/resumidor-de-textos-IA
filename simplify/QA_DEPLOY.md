@@ -1,0 +1,14 @@
+# QA Deploy
+
+## Smoke tests (2025-09-25)
+
+- `curl -i -s https://simplify.pulsewebpro.com/api/health`
+  - Resultado: `HTTP/1.1 403 Forbidden`
+- `curl -i -s -H "Origin: https://simplify.pulsewebpro.com" -H "X-Anon-Id: test123" https://simplify.pulsewebpro.com/api/wallet`
+  - Resultado: `HTTP/1.1 403 Forbidden`
+- `curl -i -s -X POST https://simplify.pulsewebpro.com/api/checkout -H "Origin: https://simplify.pulsewebpro.com" -H "Content-Type: application/json" -H "X-Anon-Id: test123" -d '{"plan":"one"}'`
+  - Resultado: `HTTP/1.1 403 Forbidden`
+- `curl -i -s -X POST https://simplify.pulsewebpro.com/api/stripe-webhook -H "Content-Type: application/json" -d '{"type":"checkout.session.completed"}'`
+  - Resultado: `HTTP/1.1 403 Forbidden`
+
+> Nota: Vercel CLI no está disponible en el entorno actual (`vercel --prod --force` → `command not found`).
