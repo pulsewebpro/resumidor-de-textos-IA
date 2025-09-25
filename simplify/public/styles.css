@@ -266,3 +266,15 @@ textarea{
   .cta-primary{ width: 100%; margin-inline: 0; }
   textarea{ min-height: clamp(200px, 38vh, 460px); }
 }
+/* Oculta controles técnicos en producción */
+button, .btn {
+  /* nada especial aquí, pero mantenemos la regla para coherencia */
+}
+.hide-in-public { display: none !important; }
+
+/* Ajuste visual leve para leyendas de secciones */
+fieldset legend, .section-legend {
+  font-weight: 700;
+  color: var(--text);
+  opacity: .9;
+}
