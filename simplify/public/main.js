@@ -7,17 +7,17 @@
 
   // Micro-descripciones para botones por texto aproximado
   const micro = new Map([
-    ["tl;dr","Condensa en 3 frases claras"],
-    ["resumir","Condensa en 3 frases claras"],
-    ["traducir","Traduce y adapta como nativo"],
-    ["reescribir","Haz tu texto claro, corto o convincente"],
-    ["seo","Genera títulos y copys que venden"],
-    ["marketing","Genera títulos y copys que venden"],
-    ["legal","Convierte ideas en contratos o políticas"],
-    ["formal","Convierte ideas en contratos o políticas"],
-    ["creativo","Poema, rap o cuento en segundos"],
-    ["documentos","Sube PDF y resume o exporta"],
-    ["especial","Hazlo viral, negocio o experto en 1 click"]
+    ["tl;dr", "De horas de lectura a minutos de claridad."],
+    ["resumir", "De horas de lectura a minutos de claridad."],
+    ["traducir", "Más de 50 idiomas, con alma nativa."],
+    ["reescribir", "Haz que tu idea sea inolvidable."],
+    ["seo", "Textos que venden mientras duermes."],
+    ["marketing", "Textos que venden mientras duermes."],
+    ["legal", "De una idea a un contrato válido en segundos."],
+    ["formal", "De una idea a un contrato válido en segundos."],
+    ["creativo", "Poema, rap o cuento: tu texto, transformado."],
+    ["documentos", "De PDF a resumen con un clic."],
+    ["especial", "Hazlo viral, hazlo negocio, hazlo tuyo."]
   ]);
 
   const buttons = Array.from(document.querySelectorAll('button'));
@@ -52,6 +52,20 @@
     if (t.startsWith('generar')) b.classList.add('cta-primary');
     if (t.includes('api') || t.includes('health')) b.classList.add('btn-ghost');
   }
+})();
+/* === Hero CTA despliega área de texto === */
+(() => {
+  const cta = document.getElementById('hero-cta');
+  if (!cta) return;
+  cta.addEventListener('click', () => {
+    const ta = document.getElementById('input');
+    if (!ta) return;
+    ta.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => {
+      try { ta.focus({ preventScroll: true }); }
+      catch { ta.focus(); }
+    }, 420);
+  });
 })();
 /* === UI++: envolver bloques como tarjeta (sin tocar HTML) === */
 (() => {
@@ -97,7 +111,7 @@
 
   // 1) Título visible (hero / h1)
   const heroTitle = q('.hero h1') || q('h1');
-  if (heroTitle) heroTitle.textContent = 'Simplify AI — textos en 1 click';
+  if (heroTitle) heroTitle.textContent = 'Convierte ideas en impacto con IA, al instante.';
 
   // 2) Subtítulo (claim)
   // Queremos: "Resume, reescribe y traduce en segundos. 3 usos gratis. Sin registro."
@@ -107,7 +121,7 @@
     q('.header + p') ||
     q('p:has(+ .main)'); // robusto: por si cambia estructura
   if (heroSub) {
-    heroSub.textContent = 'Resume, reescribe y traduce en segundos. 3 usos gratis. Sin registro.';
+    heroSub.textContent = 'Resume, traduce, reescribe o transforma en poema o contrato. Gratis 3 usos. Sin registro.';
   }
 
   // 3) Leyenda de la zona del textarea
@@ -141,23 +155,23 @@
 
   // 6) <title> del documento (pestaña del navegador)
   try {
-    document.title = 'Simplify AI — textos en 1 click';
+    document.title = 'Simplify AI – Resume, traduce y transforma tus textos gratis con IA';
   } catch (e) {}
 
   // 7) Micro-descripciones de chips (si aún no estaban:
   //    dejamos textos claros de producción; no duplicamos si ya existen)
   const micro = new Map([
-    ['Resumir',     'Condensa en 3 frases claras'],
-    ['TL;DR',       'Condensa en 3 frases claras'],
-    ['Traducir',    'Traduce y adapta como nativo'],
-    ['Reescribir',  'Haz tu texto claro, corto o convincente'],
-    ['SEO',         'Genera títulos y copys que venden'],
-    ['Marketing',   'Genera títulos y copys que venden'],
-    ['Legal',       'Convierte ideas en contratos o políticas'],
-    ['Formal',      'Convierte ideas en contratos o políticas'],
-    ['Creativo',    'Poema, rap o cuento en segundos'],
-    ['Documentos',  'Sube PDF y resume o exporta'],
-    ['Especial',    'Hazlo viral, negocio o experto en 1 click'],
+    ['Resumir',     'De horas de lectura a minutos de claridad.'],
+    ['TL;DR',       'De horas de lectura a minutos de claridad.'],
+    ['Traducir',    'Más de 50 idiomas, con alma nativa.'],
+    ['Reescribir',  'Haz que tu idea sea inolvidable.'],
+    ['SEO',         'Textos que venden mientras duermes.'],
+    ['Marketing',   'Textos que venden mientras duermes.'],
+    ['Legal',       'De una idea a un contrato válido en segundos.'],
+    ['Formal',      'De una idea a un contrato válido en segundos.'],
+    ['Creativo',    'Poema, rap o cuento: tu texto, transformado.'],
+    ['Documentos',  'De PDF a resumen con un clic.'],
+    ['Especial',    'Hazlo viral, hazlo negocio, hazlo tuyo.'],
   ]);
 
   const chipEls = Array.from(document.querySelectorAll('.chip, .pill, .chip__item, .qa-btn, button'));
