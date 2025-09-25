@@ -51,34 +51,39 @@ export default async function handler(req, res) {
   }
 
   const authToken = extractBearerToken(req);
-  if (!authToken) {
-    return sendJSON(res, 401, { ok: false, code: 'INVALID_TOKEN' });
-  }
 
   const promptData = normalizePrompt(body);
   if (!promptData) {
     return sendJSON(res, 400, { ok: false, code: 'INVALID_PROMPT' });
   }
 
-  const openai = getOpenAIClient();
-  if (openai?.ok === false) {
-    return sendJSON(res, 500, openai);
-  }
-
   const walletUserId = body.walletUserId || req.headers['x-wallet-user'] || null;
 
-  const claimResult = await consumeWalletToken(authToken, { walletUserId });
-  if (claimResult?.ok === false) {
-    const status = claimResult.code === 'NO_CREDITS' || claimResult.code === 'SUB_INACTIVE' ? 402 : 401;
-    return sendJSON(res, status, { ok: false, code: claimResult.code });
-  }
-
-  if (claimResult?.token) {
-    res.setHeader('x-simplify-token', claimResult.token);
+  let updatedToken = null;
+  if (authToken) {
+    const claimResult = await consumeWalletToken(authToken, { walletUserId });
+    if (claimResult?.ok === false) {
+      const status = claimResult.code === 'NO_CREDITS' || claimResult.code === 'SUB_INACTIVE' ? 402 : 401;
+      return sendJSON(res, status, { ok: false, code: claimResult.code });
+    }
+    updatedToken = claimResult?.token || null;
   }
 
   const maxTokens = Math.max(1, Math.min(2048, Number(promptData.maxTokens) || 512));
   let content = '';
+
+  const openai = getOpenAIClient();
+  if (openai?.ok === false) {
+    const fallbackContent = promptData?.prompt?.map?.((step) => step?.content)?.join('\n') || '';
+    const message = fallbackContent ? `Echo: ${fallbackContent}` : 'Configura OPENAI_API_KEY';
+    if (updatedToken) {
+      res.setHeader('x-simplify-token', updatedToken);
+    }
+    return sendJSON(res, 200, {
+      ok: true,
+      outputs: [{ label: 'fallback', content: message }]
+    });
+  }
 
   try {
     const completion = await openai.chat.completions.create({
@@ -96,11 +101,15 @@ export default async function handler(req, res) {
     content = '';
   }
 
+  if (updatedToken) {
+    res.setHeader('x-simplify-token', updatedToken);
+  }
+
   return sendJSON(res, 200, {
     ok: true,
     outputs: [
       {
-        label: 'Result',
+        label: 'AI',
         content
       }
     ]

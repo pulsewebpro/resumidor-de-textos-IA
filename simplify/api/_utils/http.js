@@ -1,13 +1,20 @@
 const DEFAULT_ORIGIN = 'https://simplify.pulsewebpro.com';
 const MAX_BODY_SIZE = 16 * 1024; // 16KB
 
+function resolveOrigin() {
+  const raw = process.env.CORS_ORIGIN || process.env.ALLOWED_ORIGIN || DEFAULT_ORIGIN;
+  if (raw === '*') return '*';
+  if (!raw || typeof raw !== 'string') return DEFAULT_ORIGIN;
+  const first = raw.split(',')[0]?.trim();
+  return first || DEFAULT_ORIGIN;
+}
+
 export function applyCors(req, res) {
-  const allowed = typeof process.env.ALLOWED_ORIGIN === 'string' && process.env.ALLOWED_ORIGIN.trim()
-    ? process.env.ALLOWED_ORIGIN.trim()
-    : DEFAULT_ORIGIN;
+  const allowed = resolveOrigin();
   res.setHeader?.('Access-Control-Allow-Origin', allowed);
-  res.setHeader?.('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader?.('Access-Control-Allow-Headers', 'Content-Type, Authorization, Stripe-Signature');
   res.setHeader?.('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+  res.setHeader?.('Vary', 'Origin');
   if (req.method === 'OPTIONS') {
     res.statusCode = 204;
     res.end();

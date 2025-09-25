@@ -9,7 +9,12 @@
 
     const inputEl = () => document.getElementById('input');
     const textIn  = () => (inputEl()?.value || '').trim();
-    const needText = () => { const t = textIn(); if (!t) alert('Pega un texto arriba.'); return t; };
+    const getTranslator = () => (typeof window.simplifyTranslate === 'function' ? window.simplifyTranslate : (key) => key);
+    const needText = () => {
+      const txt = textIn();
+      if (!txt) alert(getTranslator()('toast.needtext'));
+      return txt;
+    };
 
     // Fallback directo si main.js no está listo
     async function callAI_fallback(messages, maxTokens=500){

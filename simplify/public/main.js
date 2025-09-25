@@ -3,6 +3,11 @@
   const USER_KEY = 'SIMPLIFY_USER_ID';
   const ADMIN_KEY = 'ADMIN';
   const LANG_KEY = 'SIMPLIFY_LANG';
+  const FREE_KEY = 'SIMPLIFY_FREE_COUNT';
+  const FREE_LIMIT = 3;
+  const EMAIL_KEY = 'SIMPLIFY_EMAIL';
+  const THEME_KEY = 'SIMPLIFY_THEME';
+  const THEMES = ['light', 'dark'];
   const DEFAULT_LANG = 'en';
   const SUPPORTED_LANGS = [
     { code: 'en', label: 'English' },
@@ -62,8 +67,13 @@
     wallet: null,
     locale: DEFAULT_LANG,
     translations: {},
-    fallback: {}
+    fallback: {},
+    freeUses: FREE_LIMIT,
+    email: ''
   };
+
+  let themeListenerBound = false;
+  let adminLangPopulated = false;
 
   const $ = (sel) => document.querySelector(sel);
   const $$ = (sel) => Array.from(document.querySelectorAll(sel));
@@ -75,6 +85,19 @@
   const modal = $('#purchase-modal');
   const modalClose = $('#modal-close');
   const modalPlans = $('#modal-go-plans');
+  const userButton = $('#user-button');
+  const userModal = $('#user-modal');
+  const userClose = $('#user-close');
+  const userManage = $('#user-manage');
+  const userEmailInput = $('#user-email');
+  const userPlanEl = $('#user-plan');
+  const userCreditsEl = $('#user-credits');
+  const adminPanel = $('#admin-panel');
+  const adminReset = $('#admin-reset');
+  const adminLang = $('#admin-lang');
+  const adminTheme = $('#admin-theme');
+  const adminExport = $('#admin-export');
+  const adminCredits = $('#admin-credits');
 
   function ensureUserId() {
     let id = window.__simplifyUserId || localStorage.getItem(USER_KEY);
@@ -86,6 +109,25 @@
     }
     window.__simplifyUserId = id;
     return id;
+  }
+
+  function loadUserEmail() {
+    const email = localStorage.getItem(EMAIL_KEY) || '';
+    state.email = email;
+    if (userEmailInput && userEmailInput.value !== email) {
+      userEmailInput.value = email;
+    }
+    return email;
+  }
+
+  function saveUserEmail(value) {
+    const cleaned = (value || '').trim();
+    state.email = cleaned;
+    if (cleaned) {
+      localStorage.setItem(EMAIL_KEY, cleaned);
+    } else {
+      localStorage.removeItem(EMAIL_KEY);
+    }
   }
 
   function decodeWallet(token) {
@@ -100,6 +142,43 @@
     }
   }
 
+  function getFreeUsedRaw() {
+    const stored = Number(localStorage.getItem(FREE_KEY) || '0');
+    if (!Number.isFinite(stored)) return 0;
+    return Math.max(0, stored);
+  }
+
+  function setFreeUsedRaw(value) {
+    const next = Math.max(0, Math.min(FREE_LIMIT, value));
+    localStorage.setItem(FREE_KEY, String(next));
+    return getFreeUsedRaw();
+  }
+
+  function refreshFreeUses() {
+    const used = getFreeUsedRaw();
+    state.freeUses = Math.max(0, FREE_LIMIT - used);
+    return state.freeUses;
+  }
+
+  function markFreeUse() {
+    const used = setFreeUsedRaw(getFreeUsedRaw() + 1);
+    state.freeUses = Math.max(0, FREE_LIMIT - used);
+    return state.freeUses;
+  }
+
+  function resetFreeUses() {
+    localStorage.removeItem(FREE_KEY);
+    state.freeUses = FREE_LIMIT;
+    return state.freeUses;
+  }
+
+  function getFreeRemaining() {
+    if (typeof state.freeUses === 'number') {
+      return state.freeUses;
+    }
+    return refreshFreeUses();
+  }
+
   function setWalletToken(token) {
     if (token) {
       localStorage.setItem(WALLET_KEY, token);
@@ -107,7 +186,7 @@
     const wallet = decodeWallet(token);
     state.wallet = wallet;
     window.__simplifyWalletState = wallet;
-    window.dispatchEvent(new CustomEvent('wallet:update', { detail: wallet }));
+    notifyWalletChange();
   }
 
   function getWalletToken() {
@@ -118,11 +197,24 @@
     return localStorage.getItem(ADMIN_KEY) === 'on';
   }
 
-  function getUsesLabel() {
+  function getEffectiveUses() {
+    if (isAdmin()) return Infinity;
     const wallet = state.wallet;
-    if (!wallet) return '—';
-    if (wallet.plan === 'sub' || wallet.uses == null) return '∞';
-    return String(Math.max(0, Number(wallet.uses || 0)));
+    if (wallet?.plan === 'sub' || wallet?.uses == null) return Infinity;
+    if (wallet?.plan === 'credits') {
+      return Math.max(0, Number(wallet.uses || 0));
+    }
+    if (wallet?.plan === 'free' && Number.isFinite(Number(wallet.uses))) {
+      return Math.max(0, Number(wallet.uses));
+    }
+    return getFreeRemaining();
+  }
+
+  function getUsesLabel() {
+    const value = getEffectiveUses();
+    if (value === Infinity) return '∞';
+    if (!Number.isFinite(value)) return String(getFreeRemaining());
+    return String(Math.max(0, value));
   }
 
   function translate(key, vars) {
@@ -131,6 +223,110 @@
     return dict.replace(/\{(\w+)\}/g, (_, name) => {
       return (vars && typeof vars[name] !== 'undefined') ? String(vars[name]) : `{${name}}`;
     });
+  }
+
+  function syncWalletWithFree() {
+    const remaining = getFreeRemaining();
+    if (!state.wallet) {
+      state.wallet = { plan: 'free', uses: remaining };
+      window.__simplifyWalletState = state.wallet;
+      return;
+    }
+    if (state.wallet.plan === 'free' && state.wallet.uses !== null) {
+      state.wallet.uses = remaining;
+    }
+  }
+
+  function updateCreditsDisplay() {
+    const usesLabel = getUsesLabel();
+    const usesEl = document.getElementById('uses-left');
+    if (usesEl) usesEl.textContent = usesLabel;
+    if (userCreditsEl) userCreditsEl.textContent = usesLabel;
+    if (adminCredits) adminCredits.textContent = usesLabel;
+  }
+
+  function resolvePlanLabel() {
+    if (isAdmin()) return translate('user.plan.admin');
+    const wallet = state.wallet;
+    if (wallet?.plan === 'sub') return translate('user.plan.sub');
+    if (wallet?.plan === 'credits') return translate('user.plan.paid');
+    return translate('user.plan.free');
+  }
+
+  function updateUserSummary() {
+    if (userPlanEl) {
+      userPlanEl.textContent = resolvePlanLabel();
+    }
+    if (userCreditsEl) {
+      userCreditsEl.textContent = getUsesLabel();
+    }
+    if (userButton) {
+      const plan = resolvePlanLabel();
+      userButton.setAttribute('data-plan', plan);
+    }
+  }
+
+  function notifyWalletChange() {
+    syncWalletWithFree();
+    updateCreditsDisplay();
+    updateUserSummary();
+    window.dispatchEvent(new CustomEvent('wallet:update', { detail: { wallet: state.wallet, freeUses: getFreeRemaining() } }));
+  }
+
+  function getSystemTheme() {
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+
+  function applyTheme(theme) {
+    const resolved = THEMES.includes(theme) ? theme : getSystemTheme();
+    document.documentElement.dataset.theme = resolved;
+    localStorage.setItem(THEME_KEY, resolved);
+    updateThemeControls();
+  }
+
+  function toggleTheme() {
+    const current = document.documentElement.dataset.theme || getSystemTheme();
+    const next = current === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+  }
+
+  function initTheme() {
+    const stored = localStorage.getItem(THEME_KEY);
+    if (stored) {
+      applyTheme(stored);
+    } else {
+      applyTheme(getSystemTheme());
+    }
+    if (!themeListenerBound && window.matchMedia) {
+      const media = window.matchMedia('(prefers-color-scheme: dark)');
+      const listener = (event) => {
+        if (!localStorage.getItem(THEME_KEY)) {
+          applyTheme(event.matches ? 'dark' : 'light');
+        }
+      };
+      media.addEventListener('change', listener);
+      themeListenerBound = true;
+    }
+  }
+
+  function updateThemeControls() {
+    if (!adminTheme) return;
+    const current = document.documentElement.dataset.theme || getSystemTheme();
+    const next = current === 'dark' ? 'light' : 'dark';
+    const key = next === 'dark' ? 'admin.theme.dark' : 'admin.theme.light';
+    const label = translate('admin.theme', { mode: translate(key) });
+    adminTheme.textContent = label;
+  }
+
+  function renderAdminPanel() {
+    if (!adminPanel) return;
+    const active = isAdmin();
+    adminPanel.hidden = !active;
+    if (active) {
+      populateAdminLangSelector();
+      updateCreditsDisplay();
+      updateThemeControls();
+    }
   }
 
   async function loadLocale(code) {
@@ -156,14 +352,16 @@
     $$('[data-i18n-template]').forEach((el) => {
       const key = el.getAttribute('data-i18n-template');
       if (!key) return;
+      if (key === 'admin.theme') return;
       const html = translate(key, { uses: `<strong id="uses-left">${getUsesLabel()}</strong>` });
       if (html) el.innerHTML = html;
     });
     if (langSelect) {
       langSelect.value = state.locale;
     }
-    // re-emit wallet update so dynamic elements (uses-left) refresh
-    window.dispatchEvent(new CustomEvent('wallet:update', { detail: state.wallet }));
+    updateThemeControls();
+    notifyWalletChange();
+    renderAdminPanel();
   }
 
   function populateLanguageSelector() {
@@ -180,6 +378,21 @@
       const lang = event.target.value;
       await setLocale(lang);
     });
+  }
+
+  function populateAdminLangSelector() {
+    if (!adminLang) return;
+    if (!adminLangPopulated) {
+      adminLang.innerHTML = '';
+      SUPPORTED_LANGS.forEach(({ code, label }) => {
+        const option = document.createElement('option');
+        option.value = code;
+        option.textContent = label;
+        adminLang.appendChild(option);
+      });
+      adminLangPopulated = true;
+    }
+    adminLang.value = state.locale;
   }
 
   function normalizeLang(code) {
@@ -205,6 +418,7 @@
       state.translations = normalized === DEFAULT_LANG ? state.fallback : { ...state.fallback, ...data };
       localStorage.setItem(LANG_KEY, normalized);
       applyTranslations();
+      populateAdminLangSelector();
     } catch (error) {
       console.warn('[simplify] locale load error', error?.message || error);
     }
@@ -231,8 +445,10 @@
     if (!loadingEl) return;
     if (active) {
       loadingEl.hidden = false;
+      loadingEl.setAttribute('aria-busy', 'true');
       panes.forEach((pane) => { if (pane) pane.hidden = true; });
     } else {
+      loadingEl.setAttribute('aria-busy', 'false');
       loadingEl.hidden = true;
     }
   }
@@ -242,6 +458,7 @@
       if (!btn) return;
       const selected = i === idx;
       btn.setAttribute('aria-selected', String(selected));
+      btn.tabIndex = selected ? 0 : -1;
     });
     panes.forEach((pane, i) => {
       if (!pane) return;
@@ -265,25 +482,60 @@
     modal.setAttribute('aria-hidden', 'true');
   }
 
+  function openUserModal() {
+    if (!userModal) return;
+    userModal.hidden = false;
+    userModal.setAttribute('aria-hidden', 'false');
+    loadUserEmail();
+    const dialog = userModal.querySelector('.modal__dialog');
+    dialog?.focus();
+    userButton?.setAttribute('aria-expanded', 'true');
+  }
+
+  function closeUserModal() {
+    if (!userModal) return;
+    userModal.hidden = true;
+    userModal.setAttribute('aria-hidden', 'true');
+    userButton?.setAttribute('aria-expanded', 'false');
+  }
+
   function ensureWalletEventListeners() {
-    if (!modal) return;
-    modal.addEventListener('click', (event) => {
-      if (event.target === modal) hideModal();
+    if (modal) {
+      modal.addEventListener('click', (event) => {
+        if (event.target === modal) hideModal();
+      });
+      modalClose?.addEventListener('click', () => hideModal());
+      modalPlans?.addEventListener('click', () => {
+        hideModal();
+        $('#pay-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        if (modal && !modal.hidden) hideModal();
+        if (userModal && !userModal.hidden) closeUserModal();
+      }
     });
-    modalClose?.addEventListener('click', () => hideModal());
-    modalPlans?.addEventListener('click', () => {
-      hideModal();
+    if (userModal) {
+      userModal.addEventListener('click', (event) => {
+        if (event.target === userModal) closeUserModal();
+      });
+    }
+    userClose?.addEventListener('click', () => closeUserModal());
+    userManage?.addEventListener('click', (event) => {
+      event.preventDefault();
+      closeUserModal();
       $('#pay-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && !modal.hidden) {
-        hideModal();
-      }
+    userButton?.addEventListener('click', () => openUserModal());
+    userEmailInput?.addEventListener('input', (event) => {
+      saveUserEmail(event.target.value);
     });
   }
 
   async function refreshWallet() {
     ensureUserId();
+    refreshFreeUses();
     try {
       const headers = {
         'Accept': 'application/json',
@@ -296,9 +548,14 @@
       const data = await res.json().catch(() => null);
       if (data?.token) {
         setWalletToken(data.token);
+        return;
       }
+      syncWalletWithFree();
+      notifyWalletChange();
     } catch (error) {
       console.warn('[simplify] wallet-init error', error?.message || error);
+      syncWalletWithFree();
+      notifyWalletChange();
     }
   }
 
@@ -322,36 +579,50 @@
   }
 
   async function callAI(messages, maxTokens = 500) {
-    const token = getWalletToken();
-    if (!token) {
-      await refreshWallet();
-    }
-    const authToken = getWalletToken();
+    const userId = window.__simplifyUserId || ensureUserId();
+    let authToken = getWalletToken();
+    const adminMode = isAdmin();
+
     if (!authToken) {
+      await refreshWallet();
+      authToken = getWalletToken();
+    }
+
+    const usingWalletInitially = Boolean(authToken);
+    const freeRemaining = getFreeRemaining();
+
+    if (!usingWalletInitially && !adminMode && freeRemaining <= 0) {
       showModal();
       return;
     }
 
     setLoading(true);
     try {
+      const headers = {
+        'Content-Type': 'application/json',
+        'x-wallet-user': userId
+      };
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`;
+      }
+
       const res = await fetch('/api/ai', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`,
-          'x-wallet-user': window.__simplifyUserId || ensureUserId()
-        },
-        body: JSON.stringify({ prompt: messages, maxTokens })
+        headers,
+        body: JSON.stringify({ prompt: messages, maxTokens, walletUserId: userId })
       });
+
       const raw = await res.text();
-      const newToken = res.headers.get('x-simplify-token');
       let json = null;
       try { json = JSON.parse(raw); } catch (error) {}
 
+      const newToken = res.headers.get('x-simplify-token') || json?.token;
       if (newToken) {
         setWalletToken(newToken);
-      } else if (json?.token) {
-        setWalletToken(json.token);
+        authToken = newToken;
+      } else if (!usingWalletInitially) {
+        syncWalletWithFree();
+        notifyWalletChange();
       }
 
       if (!res.ok) {
@@ -361,7 +632,7 @@
         if (panes[0]) {
           if (code === 'NO_CREDITS') panes[0].textContent = translate('toast.nocredits');
           else if (code === 'ENV_MISSING') panes[0].textContent = translate('toast.envmissing');
-          else panes[0].textContent = json?.message || 'Error al generar.';
+          else panes[0].textContent = json?.message || translate('toast.error');
         }
         setTab(0);
         return;
@@ -371,21 +642,51 @@
       if (panes[0]) panes[0].textContent = typeof content === 'string' ? content : JSON.stringify(content, null, 2);
       if (panes[1]) panes[1].textContent = json ? JSON.stringify(json, null, 2) : '(no JSON)';
       if (panes[2]) panes[2].textContent = raw;
+
+      if (!authToken && !adminMode) {
+        markFreeUse();
+        notifyWalletChange();
+      }
+
       setLoading(false);
       setTab(0);
     } catch (error) {
       setLoading(false);
-      panes[0] && (panes[0].textContent = 'Error al generar.');
+      if (panes[0]) panes[0].textContent = translate('toast.error');
       setTab(0);
     }
   }
 
   window.simplifyCallAI = callAI;
+  window.simplifyTranslate = translate;
 
   async function init() {
     ensureUserId();
+    refreshFreeUses();
+    loadUserEmail();
     await initI18n();
+    initTheme();
     ensureWalletEventListeners();
+    renderAdminPanel();
+    adminLang?.addEventListener('change', (event) => {
+      setLocale(event.target.value);
+    });
+    adminTheme?.addEventListener('click', () => toggleTheme());
+    adminReset?.addEventListener('click', () => {
+      resetFreeUses();
+      localStorage.removeItem(WALLET_KEY);
+      state.wallet = { plan: 'free', uses: FREE_LIMIT };
+      notifyWalletChange();
+      alert(translate('admin.reset.done'));
+    });
+    adminExport?.addEventListener('click', () => {
+      console.info('[simplify] export logs', {
+        wallet: state.wallet,
+        email: state.email,
+        freeUses: getFreeRemaining()
+      });
+      alert(translate('admin.export.ready'));
+    });
     await refreshWallet();
 
     setTab(0);
@@ -393,7 +694,7 @@
     const textarea = $('#input');
     $('#btn-gen')?.addEventListener('click', () => {
       const text = (textarea?.value || '').trim();
-      callAI([{ role: 'user', content: text || 'Escribe un texto arriba.' }], 320);
+      callAI([{ role: 'user', content: text || translate('chips.defaultPrompt') }], 320);
     });
 
     $('#btn-health')?.addEventListener('click', async () => {
@@ -416,14 +717,30 @@
 
     tabBtns.forEach((btn, idx) => {
       btn?.addEventListener('click', () => setTab(idx));
+      btn?.addEventListener('keydown', (event) => {
+        if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+          event.preventDefault();
+          const next = (idx + 1) % tabBtns.length;
+          tabBtns[next]?.focus();
+          setTab(next);
+        } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+          event.preventDefault();
+          const prev = (idx - 1 + tabBtns.length) % tabBtns.length;
+          tabBtns[prev]?.focus();
+          setTab(prev);
+        }
+      });
     });
 
     window.addEventListener('admin:toggle', () => {
+      renderAdminPanel();
       refreshWallet();
     });
 
     window.addEventListener('wallet:error', handleWalletError);
     window.addEventListener('focus', () => {
+      refreshFreeUses();
+      notifyWalletChange();
       refreshWallet();
     });
   }

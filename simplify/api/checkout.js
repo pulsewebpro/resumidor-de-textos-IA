@@ -6,9 +6,9 @@ export const config = {
 };
 
 const PLAN_CONFIG = {
-  one: { env: 'PRICE_ONE', mode: 'payment' },
-  ten: { env: 'PRICE_TEN', mode: 'payment' },
-  sub: { env: 'PRICE_SUB', mode: 'subscription' }
+  one: { env: 'STRIPE_PRICE_ONESHOT', mode: 'payment' },
+  pack10: { env: 'STRIPE_PRICE_PACK10', mode: 'payment' },
+  sub: { env: 'STRIPE_PRICE_SUBS', mode: 'subscription' }
 };
 
 function requiredEnv(key) {
@@ -19,14 +19,21 @@ function requiredEnv(key) {
   return value;
 }
 
+function resolveOrigin() {
+  const raw = process.env.CORS_ORIGIN || process.env.ALLOWED_ORIGIN || 'https://simplify.pulsewebpro.com';
+  if (!raw || typeof raw !== 'string') return 'https://simplify.pulsewebpro.com';
+  const first = raw.split(',')[0]?.trim();
+  return (first || 'https://simplify.pulsewebpro.com').replace(/\/$/, '');
+}
+
 function successUrl() {
-  const origin = process.env.ALLOWED_ORIGIN || 'https://simplify.pulsewebpro.com';
-  return `${origin}?paid=1&session_id={CHECKOUT_SESSION_ID}`;
+  const origin = resolveOrigin();
+  return `${origin}/?paid=1&session_id={CHECKOUT_SESSION_ID}`;
 }
 
 function cancelUrl() {
-  const origin = process.env.ALLOWED_ORIGIN || 'https://simplify.pulsewebpro.com';
-  return `${origin}?canceled=1`;
+  const origin = resolveOrigin();
+  return `${origin}/?canceled=1`;
 }
 
 export default async function handler(req, res) {
