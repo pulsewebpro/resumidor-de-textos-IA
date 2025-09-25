@@ -64,3 +64,103 @@ section, .card, .panel{
 }
 .cta-primary:focus-visible{outline:none; box-shadow:var(--ring)}
 /* ===== Fin premium genérico ===== */
+/* === UI++ tokens y tipografía === */
+:root{
+  --space-1: 6px; --space-2: 10px; --space-3: 16px; --space-4: 20px; --space-5: 28px;
+  --maxw: 1040px; /* contenido un poco más ceñido para foco visual */
+}
+.main{ max-width:var(--maxw); margin-inline:auto; padding:var(--space-3) var(--space-4); }
+h1{ font-size:clamp(28px,3.6vw,40px); line-height:1.12; margin: var(--space-2) 0 var(--space-1); }
+h2{ font-size:clamp(18px,2.2vw,22px); line-height:1.2; margin: var(--space-3) 0 var(--space-2); }
+h3{ font-size:clamp(16px,1.8vw,18px); line-height:1.25; margin: var(--space-3) 0 var(--space-2); }
+/* === Tarjetas visuales para secciones === */
+.card{
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: var(--rad-xl);
+  padding: var(--space-3);
+  box-shadow: var(--shadow-2);
+}
+h2 + div, h3 + div{ /* bloque inmediatamente debajo de un título */
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: var(--rad-xl);
+  padding: var(--space-3);
+  box-shadow: var(--shadow-2);
+}
+h2{ position:relative; padding-left: 10px; }
+h2::before{
+  content:""; position:absolute; left:0; top:50%; transform:translateY(-50%);
+  width:4px; height:1.1em; border-radius:2px;
+  background: linear-gradient(180deg, var(--brand), var(--brand-2));
+}
+/* === Campos === */
+textarea, input[type="text"], select{
+  background: #0f1422;
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 12px;
+  padding: 10px 12px;
+  outline: none;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.02);
+}
+textarea::placeholder{ color: var(--muted); opacity: .9; }
+textarea:focus, input:focus, select:focus{ box-shadow: var(--ring); border-color: transparent; }
+/* === Botones === */
+.btn{
+  appearance: none; border:0; cursor:pointer; user-select:none;
+  border-radius: 14px; padding: 10px 14px; font-weight:700;
+  background: rgba(255,255,255,.06); color:var(--text);
+  border:1px solid rgba(255,255,255,.08);
+  transition: transform .04s ease, background .2s ease, opacity .2s ease;
+}
+.btn:hover{ background: rgba(255,255,255,.10); }
+.btn:active{ transform: translateY(1px); }
+.btn:focus-visible{ outline:none; box-shadow: var(--ring); }
+/* === CTA principal === */
+.cta-primary{
+  background: linear-gradient(135deg, var(--brand), var(--brand-2));
+  color:#fff; border:0; box-shadow: var(--shadow-1);
+}
+.cta-primary:hover{ filter: brightness(1.04); }
+.cta-primary:active{ transform: translateY(1px); }
+/* === Botón ghost (secundario) === */
+.btn-ghost{
+  background: transparent;
+  border:1px solid rgba(255,255,255,.18);
+}
+.btn-ghost:hover{ background: rgba(255,255,255,.06); }
+/* === Chips === */
+.chip, .pill, .chip__item, .qa-btn, button.chip{
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--text);
+  border:1px solid rgba(255,255,255,.08);
+  padding: 8px 12px;
+  cursor:pointer;
+}
+.chip + .chip, .pill + .pill, .chip__item + .chip__item{ margin-left: 6px; }
+.chip:hover{ background: rgba(255,255,255,.08); }
+.chip-sub{ display:block; margin-top:6px; font-size:12px; color:var(--muted); }
+/* === Utilidades === */
+.muted{ color: var(--muted); }
+.divider{ height:1px; background: rgba(255,255,255,.06); margin: var(--space-3) 0; }
+.mt-2{ margin-top: var(--space-2); } .mt-3{ margin-top: var(--space-3); } .mb-3{ margin-bottom: var(--space-3); }
+/* === Header tuning === */
+.header{ display:flex; align-items:center; gap:14px; padding:12px 0 6px; }
+.header__brand img{ width:96px; height:96px; border-radius:18px; }
+/* === Grid para grupos de acciones === */
+h2 + div .chip, h3 + div .chip{ margin-bottom: 6px; }
+@media (min-width: 920px){
+  h2 + div, h3 + div{ display:block; }
+}
+/* === Loading suave === */
+.loading{ opacity:.8; pointer-events:none; filter:saturate(.8); }
+/* === Links === */
+a{ color: var(--brand); text-underline-offset: 2px; }
+a:hover{ color: var(--brand-2); }
+@media (max-width: 560px){
+  .main{ padding: var(--space-2) var(--space-3); }
+  .card, h2 + div, h3 + div{ padding: var(--space-2); }
+  .header__brand img{ width:84px; height:84px; }
+}

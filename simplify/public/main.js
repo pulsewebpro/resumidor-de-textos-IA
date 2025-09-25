@@ -39,3 +39,32 @@
     }
   }
 })();
+/* === UI++: mejora de botones base === */
+(() => {
+  const btns = Array.from(document.querySelectorAll('button'));
+  for (const b of btns) { b.classList?.add('btn'); }
+})();
+/* === UI++: CTA y ghost por texto === */
+(() => {
+  const all = Array.from(document.querySelectorAll('button'));
+  for (const b of all) {
+    const t = (b.innerText || "").toLowerCase();
+    if (t.startsWith('generar')) b.classList.add('cta-primary');
+    if (t.includes('api') || t.includes('health')) b.classList.add('btn-ghost');
+  }
+})();
+/* === UI++: envolver bloques como tarjeta (sin tocar HTML) === */
+(() => {
+  const heads = document.querySelectorAll('h2, h3');
+  heads.forEach(h => {
+    const n = h.nextElementSibling;
+    if (n && n.tagName === 'DIV' && !n.classList.contains('card')) n.classList.add('card');
+  });
+})();
+/* === UI++: placeholder en textarea === */
+(() => {
+  const ta = document.querySelector('textarea#input, textarea[name="input"], textarea');
+  if (ta && (!ta.placeholder || ta.placeholder.length < 5)) {
+    ta.placeholder = "Pega aquí tu texto… o prueba un chip";
+  }
+})();
