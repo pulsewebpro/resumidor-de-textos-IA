@@ -68,3 +68,26 @@
     ta.placeholder = "Pega aquí tu texto… o prueba un chip";
   }
 })();
+/* === Autosize inteligente del textarea === */
+(() => {
+  const ta = document.querySelector('textarea');
+  if (!ta) return;
+
+  const baseMin = () => {
+    // base por viewport (funciona con los min-height de CSS)
+    const vh = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+    const isMobile = window.matchMedia('(max-width: 600px)').matches;
+    ta.style.minHeight = (isMobile ? Math.max(200, vh * 0.38) : Math.max(160, vh * 0.28)) + 'px';
+  };
+
+  const autosize = () => {
+    ta.style.height = 'auto';
+    const extra = 16; // acolchado
+    ta.style.height = Math.min(ta.scrollHeight + extra, 1000) + 'px';
+  };
+
+  baseMin();
+  autosize();
+  ta.addEventListener('input', autosize);
+  window.addEventListener('resize', () => { baseMin(); autosize(); });
+})();
