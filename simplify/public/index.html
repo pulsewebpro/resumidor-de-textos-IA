@@ -3,38 +3,56 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Simplify AI — Premium text summaries in one click</title>
-  <meta name="description" content="Simplify transforma textos largos en resúmenes claros al instante. Créditos flexibles, suscripción y 50+ idiomas.">
-  <meta property="og:title" content="Simplify AI — Premium summaries">
-  <meta property="og:description" content="Convierte textos en resúmenes perfectos en segundos.">
+  <title>Simplify AI – Resume, traduce y transforma tus textos gratis con IA</title>
+  <meta name="description" content="Simplify AI convierte tus ideas en impacto inmediato: resume, traduce, reescribe o hazlo creativo en segundos. Gratis, sin registro, con planes flexibles.">
+  <meta name="keywords" content="resumir texto IA, traductor inteligente, reescribir texto online, IA para escribir, simplificar texto, AI writing tool">
+  <meta property="og:title" content="Simplify AI – Resume, traduce y transforma tus textos gratis con IA">
+  <meta property="og:description" content="Convierte ideas en impacto inmediato: resume, traduce, reescribe o hazlo creativo en segundos.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://simplify.pulsewebpro.com/">
   <meta property="og:image" content="https://simplify.pulsewebpro.com/avatar.png">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Simplify AI">
-  <meta name="twitter:description" content="Resúmenes claros, rápidos y en 50+ idiomas.">
+  <meta name="twitter:title" content="Simplify AI – IA creativa instantánea">
+  <meta name="twitter:description" content="Resume, traduce o transforma tu texto en segundos. 3 usos gratis, sin registro.">
   <link rel="stylesheet" href="./styles.css?v=1758700000000">
 </head>
 <body>
-  <main class="container">
-    <header class="page-header">
-      <div class="brand-block">
-        <img src="./avatar.png" alt="Simplify" class="avatar" width="56" height="56">
-        <div>
-          <h1 id="app-title" data-i18n="title">Simplify AI – Textos en 1 click</h1>
-          <p id="app-subtitle" class="subtle" data-i18n="subtitle">Prueba rápida para verificar despliegue y la API.</p>
+  <main class="container landing">
+    <header class="page-header hero">
+      <div class="hero__visual">
+        <div class="hero-avatar" aria-hidden="true">
+          <img src="./avatar.png" alt="Simplify" class="avatar hero-avatar__img" width="320" height="320">
+          <span class="hero-avatar__glow"></span>
+          <span class="hero-avatar__ring"></span>
         </div>
       </div>
-      <div class="header-actions">
-        <label class="lang-switch" for="lang-select">
-          <span class="sr-only" data-i18n="aria.lang">Idioma</span>
-          <select id="lang-select" aria-label="Idioma"></select>
-        </label>
-        <button id="user-button" class="btn ghost" type="button" data-i18n="user.button" aria-haspopup="dialog" aria-expanded="false">Usuario</button>
+      <div class="hero__content">
+        <div class="hero__bar">
+          <div class="brand-block">
+            <span class="brand-tag">Simplify AI</span>
+            <h1 id="app-title" data-i18n="title">Convierte ideas en impacto con IA, al instante.</h1>
+            <p id="app-subtitle" class="hero-sub" data-i18n="subtitle">Resume, traduce, reescribe o transforma en poema o contrato. Gratis 3 usos. Sin registro.</p>
+          </div>
+          <div class="header-actions">
+            <label class="lang-switch" for="lang-select">
+              <span class="sr-only" data-i18n="aria.lang">Idioma</span>
+              <select id="lang-select" aria-label="Idioma"></select>
+            </label>
+            <button id="user-button" class="btn ghost" type="button" data-i18n="user.button" aria-haspopup="dialog" aria-expanded="false">Usuario</button>
+          </div>
+        </div>
+        <div class="hero__cta">
+          <button id="hero-cta" class="btn primary hero-cta" type="button">Empieza gratis</button>
+          <p class="hero-note">3 usos de regalo para probar todo el poder creativo.</p>
+        </div>
+        <ul class="hero-highlights" aria-label="Highlights">
+          <li>Idea → Texto listo en segundos.</li>
+          <li>Visuales y tono dignos de un estudio de animación.</li>
+          <li>3 usos gratis, sin registro ni fricción.</li>
+        </ul>
       </div>
     </header>
-
-    <section class="card" aria-labelledby="input-title">
+    <section class="card input-card" aria-labelledby="input-title">
       <h2 id="input-title" class="sr-only">Entrada</h2>
       <textarea id="input" rows="10" placeholder="Pega tu texto aquí…" data-i18n-placeholder="textarea.placeholder"></textarea>
       <div class="actions">
@@ -43,23 +61,52 @@
       </div>
     </section>
 
-    <section class="card" aria-labelledby="chips-title">
-      <h3 id="chips-title" data-i18n="chips.title">Acciones rápidas</h3>
+    <section class="card chips-card" aria-labelledby="chips-title">
+      <div class="section-heading">
+        <h3 id="chips-title" data-i18n="chips.title">Acciones rápidas</h3>
+        <p class="section-sub">Elige un chip y mira cómo Simplify AI moldea tus ideas.</p>
+      </div>
       <div id="chips-panel" class="chips-grid"></div>
     </section>
 
-    <section id="pay-panel" class="card" aria-labelledby="pay-title">
-      <h3 id="pay-title" data-i18n="actions.heading">Créditos y suscripción</h3>
-      <p id="pay-intro" data-i18n-template="actions.intro">Te quedan <strong id="uses-left">3</strong> usos gratis. Cuando se agoten, compra créditos:</p>
-      <div class="pay-actions">
-        <button id="pay-one"  class="btn primary" data-plan="one" data-i18n="actions.buy1">1 uso · 1 €</button>
-        <button id="pay-pack" class="btn outline" data-plan="pack10" data-i18n="actions.buy10">10 usos · 5 €</button>
-        <button id="pay-sub"  class="btn ghost"   data-plan="sub" data-i18n="actions.subscribe">Suscripción · 8 €/mes</button>
+    <section class="card benefits" aria-labelledby="benefits-title">
+      <h3 id="benefits-title">Beneficios destacados</h3>
+      <div class="benefits-grid">
+        <article class="benefit">Tu copiloto creativo 24/7.</article>
+        <article class="benefit">De estudiantes a empresas: un solo lugar para todos.</article>
+        <article class="benefit">Privado, seguro, global.</article>
       </div>
-      <small>Stripe gestiona el pago. No guardamos datos de tarjetas.</small>
     </section>
 
-    <section class="card" aria-labelledby="result-title">
+    <section id="pay-panel" class="card plans" aria-labelledby="pay-title">
+      <div class="section-heading">
+        <h3 id="pay-title" data-i18n="actions.heading">Créditos y suscripción</h3>
+        <p id="pay-intro" data-i18n-template="actions.intro">Elige tu energía creativa. Tienes <strong id="uses-left">3</strong> usos gratis esperando.</p>
+      </div>
+      <div class="plan-grid">
+        <article class="plan-card" data-plan-card="one">
+          <span class="plan-icon" aria-hidden="true">1</span>
+          <h4>Uso puntual</h4>
+          <p>Perfecto para desbloquear una idea clave.</p>
+          <button id="pay-one" class="btn primary" data-plan="one" data-i18n="actions.buy1">1 uso = 1 €</button>
+        </article>
+        <article class="plan-card" data-plan-card="pack10">
+          <span class="plan-icon" aria-hidden="true">∞</span>
+          <h4>Pack 10</h4>
+          <p>Tu toolkit creativo para la semana.</p>
+          <button id="pay-pack" class="btn outline" data-plan="pack10" data-i18n="actions.buy10">10 usos = 5 €</button>
+        </article>
+        <article class="plan-card" data-plan-card="sub">
+          <span class="plan-icon" aria-hidden="true">★</span>
+          <h4>Suscripción ilimitada</h4>
+          <p>Producción sin límites, mes a mes.</p>
+          <button id="pay-sub" class="btn ghost" data-plan="sub" data-i18n="actions.subscribe">Suscripción ilimitada = 8 €/mes</button>
+        </article>
+      </div>
+      <small class="plan-note">Stripe gestiona los pagos. Nunca guardamos tus datos.</small>
+    </section>
+
+    <section class="card result-card" aria-labelledby="result-title">
       <h3 id="result-title">Resultado</h3>
 
       <div role="tablist" aria-label="Vistas de salida" class="tabs" id="result-tabs">
@@ -134,5 +181,17 @@
   <script src="./chips.js?v=1758700000000"      defer></script>
   <script src="./pay.ui.js?v=1758700000000"     defer></script>
   <script src="./main.js?v=1758700000000"       defer></script>
+
+  <footer class="site-footer">
+    <nav class="footer-links" aria-label="Legal">
+      <a href="./legal/terms.html" target="_blank" rel="noreferrer">Términos</a>
+      <span aria-hidden="true">·</span>
+      <a href="./legal/privacy.html" target="_blank" rel="noreferrer">Privacidad</a>
+      <span aria-hidden="true">·</span>
+      <a href="./legal/cookies.html" target="_blank" rel="noreferrer">Cookies</a>
+    </nav>
+    <p class="footer-brand">©2025 Simplify AI · <a href="https://bypulse.studio" target="_blank" rel="noreferrer">@ByPulse</a></p>
+    <p class="footer-trust">Stripe gestiona los pagos. Nunca guardamos tus datos.</p>
+  </footer>
 </body>
 </html>
