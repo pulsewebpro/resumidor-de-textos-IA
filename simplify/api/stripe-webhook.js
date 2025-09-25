@@ -3,7 +3,10 @@ import { stripe, setSubscriptionState } from './_utils/stripe.js';
 import { addCredits } from './_utils/state.js';
 
 export const config = {
-  runtime: 'nodejs18.x'
+  runtime: 'nodejs18.x',
+  api: {
+    bodyParser: false
+  }
 };
 
 const MAX_BODY = 16 * 1024;
