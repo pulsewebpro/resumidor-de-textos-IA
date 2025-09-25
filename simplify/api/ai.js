@@ -3,7 +3,7 @@ import { applyCors, extractBearerToken, readJSONBody, sendJSON } from './_utils/
 import { consumeWalletToken } from './claim.js';
 
 export const config = {
-  runtime: 'nodejs18.x'
+  runtime: 'nodejs'
 };
 
 let openaiClient = null;

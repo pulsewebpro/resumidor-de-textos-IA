@@ -2,7 +2,7 @@ import { applyCors, readJSONBody, sendJSON } from './_utils/http.js';
 import { stripe } from './_utils/stripe.js';
 
 export const config = {
-  runtime: 'nodejs18.x'
+  runtime: 'nodejs'
 };
 
 const PLAN_CONFIG = {
