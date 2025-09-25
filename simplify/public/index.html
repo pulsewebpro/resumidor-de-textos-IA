@@ -1,22 +1,37 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Simplify AI — Textos en 1 click</title>
-  <link rel="stylesheet" href="./styles.css?v=1758634303801">
+  <title>Simplify AI — Premium text summaries in one click</title>
+  <meta name="description" content="Simplify transforma textos largos en resúmenes claros al instante. Créditos flexibles, suscripción y 50+ idiomas.">
+  <meta property="og:title" content="Simplify AI — Premium summaries">
+  <meta property="og:description" content="Convierte textos en resúmenes perfectos en segundos.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://simplify.pulsewebpro.com/">
+  <meta property="og:image" content="https://simplify.pulsewebpro.com/avatar.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Simplify AI">
+  <meta name="twitter:description" content="Resúmenes claros, rápidos y en 50+ idiomas.">
+  <link rel="stylesheet" href="./styles.css?v=1758700000000">
 </head>
 <body>
   <main class="container">
     <header class="page-header">
-      <div>
-        <h1 id="app-title" data-i18n="title">Simplify AI – Textos en 1 click</h1>
-        <p id="app-subtitle" class="subtle" data-i18n="subtitle">Prueba rápida para verificar despliegue y la API.</p>
+      <div class="brand-block">
+        <img src="./avatar.png" alt="Simplify" class="avatar" width="56" height="56">
+        <div>
+          <h1 id="app-title" data-i18n="title">Simplify AI – Textos en 1 click</h1>
+          <p id="app-subtitle" class="subtle" data-i18n="subtitle">Prueba rápida para verificar despliegue y la API.</p>
+        </div>
       </div>
-      <label class="lang-switch" for="lang-select">
-        <span class="sr-only">Idioma</span>
-        <select id="lang-select" aria-label="Idioma"></select>
-      </label>
+      <div class="header-actions">
+        <label class="lang-switch" for="lang-select">
+          <span class="sr-only" data-i18n="aria.lang">Idioma</span>
+          <select id="lang-select" aria-label="Idioma"></select>
+        </label>
+        <button id="user-button" class="btn ghost" type="button" data-i18n="user.button" aria-haspopup="dialog" aria-expanded="false">Usuario</button>
+      </div>
     </header>
 
     <section class="card" aria-labelledby="input-title">
@@ -38,7 +53,7 @@
       <p id="pay-intro" data-i18n-template="actions.intro">Te quedan <strong id="uses-left">3</strong> usos gratis. Cuando se agoten, compra créditos:</p>
       <div class="pay-actions">
         <button id="pay-one"  class="btn primary" data-plan="one" data-i18n="actions.buy1">1 uso · 1 €</button>
-        <button id="pay-pack" class="btn outline" data-plan="ten" data-i18n="actions.buy10">10 usos · 5 €</button>
+        <button id="pay-pack" class="btn outline" data-plan="pack10" data-i18n="actions.buy10">10 usos · 5 €</button>
         <button id="pay-sub"  class="btn ghost"   data-plan="sub" data-i18n="actions.subscribe">Suscripción · 8 €/mes</button>
       </div>
       <small>Stripe gestiona el pago. No guardamos datos de tarjetas.</small>
@@ -47,17 +62,17 @@
     <section class="card" aria-labelledby="result-title">
       <h3 id="result-title">Resultado</h3>
 
-      <div role="tablist" aria-label="Vistas de salida" class="tabs">
+      <div role="tablist" aria-label="Vistas de salida" class="tabs" id="result-tabs">
         <button role="tab" aria-selected="true"  aria-controls="tab-res"  id="tabbtn-res"  class="tab" data-i18n="tabs.result">Resultado</button>
         <button role="tab" aria-selected="false" aria-controls="tab-json" id="tabbtn-json" class="tab" data-i18n="tabs.json">JSON</button>
         <button role="tab" aria-selected="false" aria-controls="tab-raw"  id="tabbtn-raw"  class="tab" data-i18n="tabs.raw">Raw</button>
       </div>
 
-      <div id="loading" hidden>Generando…</div>
+      <div id="loading" role="status" aria-live="polite" hidden>Generando…</div>
 
-      <pre id="tab-res"  role="tabpanel" tabindex="0"  aria-labelledby="tabbtn-res"  class="panel"></pre>
-      <pre id="tab-json" role="tabpanel" tabindex="-1" aria-labelledby="tabbtn-json" class="panel" hidden></pre>
-      <pre id="tab-raw"  role="tabpanel" tabindex="-1" aria-labelledby="tabbtn-raw"  class="panel" hidden></pre>
+      <pre id="tab-res"  role="tabpanel" tabindex="0"  aria-labelledby="tabbtn-res"  class="panel" aria-live="polite"></pre>
+      <pre id="tab-json" role="tabpanel" tabindex="-1" aria-labelledby="tabbtn-json" class="panel" hidden aria-live="polite"></pre>
+      <pre id="tab-raw"  role="tabpanel" tabindex="-1" aria-labelledby="tabbtn-raw"  class="panel" hidden aria-live="polite"></pre>
     </section>
   </main>
 
@@ -72,11 +87,52 @@
     </div>
   </div>
 
+  <div id="user-modal" class="modal" hidden>
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="user-modal-title" tabindex="-1">
+      <h2 id="user-modal-title" data-i18n="user.title">Perfil de usuario</h2>
+      <form class="user-form">
+        <label for="user-email" data-i18n="user.email">Correo electrónico</label>
+        <input type="email" id="user-email" name="user-email" placeholder="tu@email.com" autocomplete="email">
+      </form>
+      <dl class="user-status">
+        <div>
+          <dt data-i18n="user.plan">Plan</dt>
+          <dd id="user-plan">Gratis</dd>
+        </div>
+        <div>
+          <dt data-i18n="user.credits">Créditos</dt>
+          <dd id="user-credits">3</dd>
+        </div>
+      </dl>
+      <div class="modal__actions">
+        <button id="user-manage" class="btn primary" data-i18n="user.manage">Gestionar plan</button>
+        <button id="user-close" class="btn outline" data-i18n="modal.close">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="admin-panel" class="admin-panel" hidden>
+    <h2>Admin</h2>
+    <div class="admin-row">
+      <span data-i18n="admin.credits">Créditos restantes:</span>
+      <strong id="admin-credits">—</strong>
+      <button id="admin-reset" class="btn outline" type="button" data-i18n="admin.reset">Reset</button>
+    </div>
+    <div class="admin-row">
+      <label for="admin-lang" data-i18n="admin.language">Forzar idioma</label>
+      <select id="admin-lang"></select>
+    </div>
+    <div class="admin-row">
+      <button id="admin-theme" class="btn ghost" type="button" data-i18n-template="admin.theme">Cambiar tema</button>
+      <button id="admin-export" class="btn ghost" type="button" data-i18n="admin.export">Exportar logs</button>
+    </div>
+  </div>
+
   <!-- Orden de scripts. Rutas relativas + cache-bust -->
-  <script src="./pay.config.js?v=1758634303801" defer></script>
-  <script src="./pay.guard.js?v=1758634303801"  defer></script>
-  <script src="./chips.js?v=1758634303801"      defer></script>
-  <script src="./pay.ui.js?v=1758634303801"     defer></script>
-  <script src="./main.js?v=1758634303801"       defer></script>
+  <script src="./pay.config.js?v=1758700000000" defer></script>
+  <script src="./pay.guard.js?v=1758700000000"  defer></script>
+  <script src="./chips.js?v=1758700000000"      defer></script>
+  <script src="./pay.ui.js?v=1758700000000"     defer></script>
+  <script src="./main.js?v=1758700000000"       defer></script>
 </body>
 </html>

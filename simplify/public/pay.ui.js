@@ -41,16 +41,23 @@
 
   ensureUserId();
 
-  function render(wallet) {
+  function render(wallet, freeUses) {
     if (!usesLeft) return;
     if (!wallet) {
-      usesLeft.textContent = '—';
+      usesLeft.textContent = typeof freeUses === 'number' ? String(Math.max(0, freeUses)) : '—';
       return;
     }
     if (wallet.plan === 'sub' || wallet.uses == null) {
       usesLeft.textContent = '∞';
     } else {
-      usesLeft.textContent = String(Math.max(0, Number(wallet.uses || 0)));
+      const value = Number(wallet.uses);
+      if (Number.isFinite(value)) {
+        usesLeft.textContent = String(Math.max(0, value));
+      } else if (typeof freeUses === 'number') {
+        usesLeft.textContent = String(Math.max(0, freeUses));
+      } else {
+        usesLeft.textContent = '0';
+      }
     }
     if (payTitle) {
       const existing = payTitle.querySelector('.badge-admin');
@@ -71,7 +78,10 @@
   render(getWallet());
 
   window.addEventListener('wallet:update', (event) => {
-    render(event.detail || getWallet());
+    const detail = event.detail;
+    const wallet = detail?.wallet || detail || getWallet();
+    const freeUses = typeof detail?.freeUses === 'number' ? detail.freeUses : undefined;
+    render(wallet, freeUses);
   });
 
   function setBusy(button, busy) {

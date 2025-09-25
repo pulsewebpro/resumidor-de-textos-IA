@@ -1,4 +1,4 @@
-import { sendJSON } from './_utils/http.js';
+import { applyCors, sendJSON } from './_utils/http.js';
 import { stripe, setSubscriptionState } from './_utils/stripe.js';
 import { addCredits } from './_utils/state.js';
 
@@ -57,16 +57,18 @@ function handleCheckoutPayment(session) {
   if (!userId) return;
   if (plan === 'one') {
     addCredits(userId, 1);
-  } else if (plan === 'ten') {
+  } else if (plan === 'pack10') {
     addCredits(userId, 10);
   }
 }
 
 export default async function handler(req, res) {
+  if (applyCors(req, res)) return;
+  if (req.method === 'GET' || req.method === 'HEAD') {
+    return sendJSON(res, 200, { ok: true });
+  }
   if (req.method !== 'POST') {
-    res.statusCode = 405;
-    res.end('');
-    return;
+    return sendJSON(res, 405, { ok: false, code: 'METHOD_NOT_ALLOWED' });
   }
 
   const stripeClient = stripe();
@@ -81,9 +83,7 @@ export default async function handler(req, res) {
 
   const signature = req.headers['stripe-signature'];
   if (!signature) {
-    res.statusCode = 400;
-    res.end('');
-    return;
+    return sendJSON(res, 400, { ok: false, code: 'SIGNATURE_MISSING' });
   }
 
   let rawBody;
@@ -91,28 +91,20 @@ export default async function handler(req, res) {
     rawBody = await bufferRequest(req);
   } catch (error) {
     if (error?.message === 'PAYLOAD_TOO_LARGE') {
-      res.statusCode = 413;
-      res.end('');
-      return;
+      return sendJSON(res, 413, { ok: false, code: 'PAYLOAD_TOO_LARGE' });
     }
-    res.statusCode = 400;
-    res.end('');
-    return;
+    return sendJSON(res, 400, { ok: false, code: 'INVALID_PAYLOAD' });
   }
 
   let event;
   try {
     event = stripeClient.webhooks.constructEvent(rawBody, signature, webhookSecret);
   } catch (error) {
-    res.statusCode = 400;
-    res.end('');
-    return;
+    return sendJSON(res, 400, { ok: false, code: 'INVALID_SIGNATURE' });
   }
 
   if (event?.id && !rememberEvent(event.id)) {
-    res.statusCode = 200;
-    res.end('ok');
-    return;
+    return sendJSON(res, 200, { ok: true, received: true });
   }
 
   const type = event?.type;
@@ -140,6 +132,5 @@ export default async function handler(req, res) {
     // swallow to avoid leaking sensitive info
   }
 
-  res.statusCode = 200;
-  res.end('ok');
+  return sendJSON(res, 200, { ok: true });
 }
