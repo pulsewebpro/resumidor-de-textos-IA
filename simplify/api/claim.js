@@ -4,7 +4,7 @@ import { takeCredits } from './_utils/state.js';
 import { normalizeWallet, normalizeUses, refreshSubscription } from './_utils/wallet.js';
 
 export const config = {
-  runtime: 'nodejs18.x'
+  runtime: 'nodejs'
 };
 
 export async function consumeWalletToken(token, { walletUserId } = {}) {
