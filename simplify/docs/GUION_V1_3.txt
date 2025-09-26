@@ -94,3 +94,76 @@ DEFINITION OF DONE
 
 ENTREGA
 PR único completando todo lo anterior. Nada de botones muertos. Lo no listo, oculto por flag.
+
+NOTA FINAL – PARTE 2: GUÍA SEO/UX
+
+Además del brief técnico v1.3, incluir este bloque como documentación complementaria en docs/GUION_V1_3.txt. 
+No modifica la lógica de programación, solo explica cada botón/chip con lenguaje optimizado para SEO y sirve como guía/FAQ.
+
+Requisitos SEO:
+- Keywords principales: “resumir texto con IA”, “traductor inteligente”, “reescribir texto online”, “SEO IA”, “contrato simple IA”, “poema con IA”, “subir PDF y resumir”, “exportar Word/PDF IA”.
+- Long-tail queries: “explica como si fueras profesor”, “meta descripción IA”, “reescribir más convincente”.
+- Usar listas con subtítulos claros (H2/H3 style).
+- Límites: títulos ≤60 caracteres, meta descriptions 150–160 caracteres.
+
+Explicación de funciones (SEO optimizado):
+
+## Resumir texto con IA
+- **TL;DR (1 frase):** resume en una sola línea clara, ideal para titulares rápidos.
+- **Puntos clave:** extrae 3–7 ideas principales para ahorrar tiempo en lecturas largas.
+- **Resumen general:** condensado equilibrado, perfecto para informes o emails.
+- **Para niños:** explica en palabras simples, tono didáctico.
+- **En tono experto:** redacta con precisión profesional y académica.
+
+## Traducir con inteligencia artificial
+- **Selector de idiomas (50+):** inglés, francés, alemán, italiano, portugués y más.
+- **Adaptar culturalmente:** la traducción ajusta expresiones y ejemplos para cada cultura.
+
+## Reescribir texto online
+- **Más claro:** simplifica frases y mejora comprensión.
+- **Más corto:** elimina palabras innecesarias.
+- **Más formal:** transforma a tono académico o corporativo.
+- **Más convincente:** optimiza persuasión para ventas o presentaciones.
+
+## SEO y Marketing con IA
+- **Título SEO:** genera títulos efectivos (≤60 caracteres).
+- **Meta descripción:** frases atractivas (150–160 caracteres) que aumentan clics en Google.
+- **Copy para email:** mensajes breves y claros.
+- **Post Instagram:** tono creativo y visual.
+- **Post LinkedIn:** tono profesional y corporativo.
+
+## Legal y Formal
+- **Contrato simple:** cláusulas mínimas de roles, pagos y plazos.
+- **Política de privacidad:** adaptada a RGPD/privacidad global.
+- **Aviso legal:** requisitos legales básicos.
+- **Tono abogado:** formal y jurídico.
+- **Tono fácil de entender:** versión clara para cualquier usuario.
+
+## Creativo con IA
+- **Poema:** estilo lírico y creativo.
+- **Rap:** rimas modernas, tono fresco.
+- **Cuento corto:** narración breve con inicio, nudo y desenlace.
+- **Chiste / humor:** respuestas ligeras y divertidas.
+- **Estilo Shakespeare/Cervantes:** clásico, con sabor literario.
+
+## Documentos inteligentes
+- **Subir PDF y resumir:** analiza documentos largos en segundos.
+- **Exportar a DOCX:** genera archivos listos para Word.
+- **Exportar a PDF:** descarga lista para compartir.
+
+## Especial: Hazme el prompt 🤖
+- **Hazme el prompt:** crea instrucciones listas para IA.
+- **Hazlo viral:** textos para redes sociales con potencial de viralidad.
+- **Enfócalo a mi objetivo:** personaliza el resultado al contexto del usuario.
+- **Explícamelo como si…:** 30 roles (profesor, científico, amigo, experto, etc.).
+- **Hazlo negocio:** convierte ideas en propuestas comerciales.
+- **Dame un giro divertido:** añade humor o creatividad inesperada.
+- **Ponlo profesional:** tono serio y corporativo.
+- **Adáptalo al mundo:** contextualiza internacionalmente.
+
+Resultado esperado:
+- El código cumple brief técnico v1.3.
+- Este bloque SEO/UX queda añadido en docs como referencia.
+- El proyecto rankea en Google con keywords objetivo.
+- Usuarios entienden claramente para qué sirve cada chip/botón.
+
