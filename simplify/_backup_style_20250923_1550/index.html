@@ -5,22 +5,17 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Simplify AI — Textos en 1 click</title>
   <link rel="stylesheet" href="./styles.css?v=1758634303801">
-  <link rel="stylesheet" href="/css/theme.css">
-  <link rel="stylesheet" href="/css/skin-simplify.css">
-  <link rel="stylesheet" href="/css/sky.css">
 </head>
 <body>
-<div class="page-wrap">
-  <canvas id="sky"></canvas>
   <main class="container">
     <h1>Simplify AI – Textos en 1 click</h1>
     <p class="subtle">Prueba rápida para verificar despliegue y la API.</p>
 
     <section class="card" aria-labelledby="input-title">
       <h2 id="input-title" class="sr-only">Entrada</h2>
-      <textarea id="ai-input" id="input" rows="10" placeholder="Pega tu texto aquí…"></textarea>
+      <textarea id="input" rows="10" placeholder="Pega tu texto aquí…"></textarea>
       <div class="actions">
-        <button id="btn-gen" class="btn primary" id="btn-generate">Generar</button>
+        <button id="btn-gen" class="btn primary">Generar (ping API)</button>
         <button id="btn-health" class="btn outline">Probar /api/health</button>
       </div>
     </section>
@@ -64,16 +59,5 @@
   <script src="./chips.js?v=1758634303801"      defer></script>
   <script src="./pay.ui.js?v=1758634303801"     defer></script>
   <script src="./main.js?v=1758634303801"       defer></script>
-  <script defer src="/js/sky.js"></script>
-</div><!--page-wrap-->
-  <img id="pulse-side" src="/pulse/pulse-avatar.png" alt="Pulse" loading="eager" />
-  <script defer src="/js/pulse-side.js"></script>
-  <a id="pulse-logo-wrap" href="/" aria-label="Ir al inicio"><img id="pulse-logo" src="/pulse/pulse-logo.png" alt="Pulse — logo" loading="eager"/></a>
-  <div id="ai-result" style="display:none"></div>
-  <script defer src="/js/app-wire.js"></script>
-  <script defer src="/js/admin-mode.js"></script>
-  <script defer src="/js/admin-bypass.js"></script>
-  <script defer src="/js/admin-bypass.js"></script>
-  <script defer src="/js/result-router.js"></script>
 </body>
 </html>

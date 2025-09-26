@@ -1,0 +1,40 @@
+:root{
+  --bg:#070a12;        /* fondo noche profunda */
+  --bg-2:#0b1220;      /* paneles/cards */
+  --fg:#e8f0ff;        /* texto principal */
+  --muted:#a8b3c7;     /* texto secundario */
+  --primary:#00e0ff;   /* cian brillo */
+  --accent:#ffd168;    /* oro suave */
+  --danger:#ff5c7a;
+  --ok:#4be38b;
+  --glass:rgba(255,255,255,.06);
+  --border:rgba(255,255,255,.12);
+  --glow:0 0 24px rgba(0,224,255,.25), 0 0 48px rgba(0,224,255,.12);
+}
+html,body{
+  background: radial-gradient(1200px 800px at 70% -10%, rgba(0,224,255,.08), transparent 60%),
+              radial-gradient(900px 600px at 10% 120%, rgba(255,209,104,.06), transparent 60%),
+              var(--bg);
+  color:var(--fg);
+}
+.glass{
+  background:var(--glass);
+  backdrop-filter:saturate(160%) blur(10px);
+  border:1px solid var(--border);
+  border-radius:16px;
+  box-shadow:var(--glow);
+}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:.5rem;
+  padding:.7rem 1rem;border-radius:14px;border:1px solid var(--border);
+  background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
+  color:var(--fg); text-decoration:none; font-weight:600; cursor:pointer;
+  transition:transform .15s ease, box-shadow .2s ease;
+}
+.btn:hover{ transform:translateY(-1px); box-shadow:0 8px 30px rgba(0,0,0,.25), var(--glow);}
+.btn-primary{ border-color:rgba(0,224,255,.35); box-shadow:var(--glow); }
+input, textarea, select{
+  background:var(--bg-2); color:var(--fg); border:1px solid var(--border);
+  border-radius:12px; padding:.8rem .9rem; outline:none;
+}
+input:focus, textarea:focus{ border-color:var(--primary); box-shadow:0 0 0 3px rgba(0,224,255,.15); }

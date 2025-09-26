@@ -1,0 +1,479 @@
+/* Reset suave y tipografía */
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif; line-height:1.5}
+a{color:var(--primary); text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* Layout general */
+.page-wrap{max-width:1100px; margin:48px auto; padding:0 16px}
+@media (min-width:1200px){ .page-wrap{max-width:1200px}}
+
+/* Headings */
+h1{font-size:clamp(28px,4vw,40px); font-weight:800; letter-spacing:.2px; margin:0 0 10px}
+h2{font-size:clamp(16px,2vw,18px); font-weight:700; color:var(--muted); margin:0 0 14px}
+
+/* Panel “glass” universal sin cambiar tu HTML */
+.panel, .card, .box, .container, .content,
+main > div, section > div:first-child{
+  background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  box-shadow:var(--shadow);
+  backdrop-filter:saturate(160%) blur(10px);
+}
+
+/* Bloque de input (textarea + botones) */
+textarea, .input, .textbox{
+  width:100%; min-height:160px; resize:vertical;
+  background:var(--bg-2); color:var(--fg);
+  border:1px solid var(--border); border-radius:var(--radius-md);
+  padding:14px 16px; font-size:15px; outline:none;
+}
+textarea:focus{border-color:var(--primary); box-shadow:0 0 0 3px rgba(0,224,255,.15)}
+
+/* Botones (mantiene tus clases actuales) */
+button, .btn, input[type="button"], input[type="submit"]{
+  display:inline-flex; align-items:center; justify-content:center; gap:.5rem;
+  padding:.7rem 1rem; border-radius:var(--radius-md);
+  border:1px solid var(--border);
+  background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
+  color:var(--fg); font-weight:700; cursor:pointer;
+  transition:transform .15s ease, box-shadow .2s ease, border-color .2s ease;
+}
+button:hover, .btn:hover{ transform:translateY(-1px); box-shadow:var(--glow); border-color:rgba(0,224,255,.35) }
+button:active, .btn:active{ transform:translateY(0) scale(.98) }
+.primary, .btn-primary{ border-color:rgba(0,224,255,.45); box-shadow:var(--glow) }
+.secondary, .btn-secondary{ border-color:rgba(255,209,104,.45) }
+
+/* Chips (Acciones rápidas) — aplica incluso si son <button> normales */
+.chips, .chip-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:8px }
+.chip, .tag, .pill, .mini-btn, .chips button{
+  font-size:13px; font-weight:600; border-radius:999px; padding:8px 12px;
+  background:rgba(255,255,255,.05); border:1px solid var(--border); color:var(--fg);
+  transition:background .2s ease, transform .15s ease, box-shadow .2s ease;
+  white-space:nowrap; text-overflow:ellipsis; overflow:hidden;
+}
+.chip:hover{ background:rgba(255,255,255,.09); box-shadow:0 6px 18px rgba(0,0,0,.25) }
+.chip:active{ transform:translateY(1px) }
+
+/* Secciones de categorías (Resumir/Traducir/…) */
+.section{ padding:18px; border-radius:var(--radius-lg) }
+.section + .section{ margin-top:14px }
+.section h3{ margin:0 0 10px; font-size:15px; color:var(--muted); text-transform:none }
+
+/* Cabecera superior (barrita suave) */
+.header{
+  position:sticky; top:0; z-index:5;
+  backdrop-filter:saturate(140%) blur(8px);
+  background:linear-gradient(180deg, rgba(7,10,18,.85), rgba(7,10,18,.55));
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.header .inner{ max-width:1100px; margin:0 auto; padding:10px 16px; display:flex; align-items:center; gap:10px }
+
+/* Tablas/JSON/Raw (si los usas en tabs) */
+pre, code, .monospace{
+  background:var(--panel); border:1px solid var(--border);
+  border-radius:var(--radius-md); padding:12px; overflow:auto;
+}
+
+/* Estados */
+.success{ color:var(--ok) } .danger{ color:var(--danger) }
+
+/* Accesibilidad: reduce movimiento si el usuario lo pide */
+@media (prefers-reduced-motion: reduce){
+  *{ animation:none!important; transition:none!important }
+}
+
+/* === Ajustes de BOTONES === */
+button, .btn, input[type="button"], input[type="submit"] {
+  font-size: 16px;               /* más grande */
+  font-weight: 700;
+  padding: 14px 22px;            /* más alto/ancho */
+  border-radius: 16px;           /* bordes más suaves */
+}
+
+/* Botón primario (azul/cian) */
+.btn-primary, button.primary {
+  background: linear-gradient(180deg, var(--primary), #0088aa);
+  border: none;
+  color: white;
+  box-shadow: 0 4px 16px rgba(0,224,255,.4);
+}
+.btn-primary:hover {
+  background: linear-gradient(180deg, #00f0ff, #0099bb);
+  transform: translateY(-2px);
+}
+
+/* Botón secundario (oro) */
+.btn-secondary, button.secondary {
+  background: linear-gradient(180deg, var(--accent), #b88b20);
+  border: none;
+  color: #201800;
+  box-shadow: 0 4px 14px rgba(255,209,104,.4);
+}
+.btn-secondary:hover {
+  background: linear-gradient(180deg, #ffd168, #d6a637);
+  transform: translateY(-2px);
+}
+
+/* === Ajustes de CHIPS === */
+.chip, .chips button {
+  font-size: 14px;
+  padding: 10px 16px;
+  border-radius: 20px;
+  background: rgba(255,255,255,.08);
+}
+.chip:hover, .chips button:hover {
+  background: rgba(0,224,255,.15);
+  color: var(--primary);
+  box-shadow: 0 0 12px rgba(0,224,255,.3);
+}
+
+/* === Tarjetas / Chips con AZUL Pulse === */
+.section, .card, .chip, .chips button {
+  background: linear-gradient(180deg, rgba(0,224,255,.15), rgba(0,224,255,.05));
+  border: 1px solid rgba(0,224,255,.3);
+  color: var(--fg);
+}
+.chip:hover, .chips button:hover {
+  background: linear-gradient(180deg, rgba(0,224,255,.35), rgba(0,224,255,.15));
+  color: white;
+  box-shadow: 0 0 14px rgba(0,224,255,.4);
+}
+
+/* === Botones principales en NARANJA/ORO === */
+button, .btn, input[type="button"], input[type="submit"] {
+  font-size: 16px;
+  font-weight: 700;
+  padding: 14px 22px;
+  border-radius: 16px;
+  border: none;
+  color: #201800;
+  background: linear-gradient(180deg, var(--accent), #d89b2c);
+  box-shadow: 0 4px 16px rgba(255,209,104,.4);
+}
+button:hover, .btn:hover {
+  background: linear-gradient(180deg, #ffd168, #e0aa3b);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255,209,104,.5);
+}
+
+/* Secundarios en azul Pulse */
+.btn-secondary, button.secondary {
+  background: linear-gradient(180deg, var(--primary), #0088aa);
+  color: white;
+  box-shadow: 0 4px 14px rgba(0,224,255,.4);
+}
+.btn-secondary:hover {
+  background: linear-gradient(180deg, #00f0ff, #0099bb);
+  box-shadow: 0 6px 20px rgba(0,224,255,.5);
+}
+
+/* === OVERRIDES FINALES · VISIBILIDAD ALTA === */
+
+/* Paneles y tarjetas: azul oscuro legible */
+.section, .card, .box, .content {
+  background: #0f1b2e !important;
+  border: 1px solid rgba(0,224,255,.35) !important;
+  color: #eaf6ff !important;
+  border-radius: 18px !important;
+}
+
+/* Chips: grandes, contraste alto, sin opacidad tenue */
+.chips button, .chip, .pill, .tag {
+  font-size: 15.5px !important;
+  font-weight: 700 !important;
+  padding: 12px 18px !important;
+  border-radius: 22px !important;
+  background: #133044 !important;                          /* azul profundo */
+  border: 1px solid #27d3ff !important;                    /* borde pulse */
+  color: #eaf6ff !important;
+  opacity: 1 !important; filter: none !important;
+  box-shadow: 0 6px 18px rgba(0,0,0,.25) !important;
+}
+.chips button:hover, .chip:hover, .pill:hover, .tag:hover {
+  background: #15516a !important;
+  box-shadow: 0 0 18px rgba(39,211,255,.35) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Botones principales: ORO grande y legible */
+button, .btn, input[type="button"], input[type="submit"] {
+  font-size: 17px !important;
+  font-weight: 800 !important;
+  padding: 16px 24px !important;
+  border-radius: 18px !important;
+  border: none !important;
+  background: linear-gradient(180deg, #ffd168, #d9a12f) !important;
+  color: #211600 !important;
+  box-shadow: 0 10px 28px rgba(255,209,104,.45) !important;
+}
+button:hover, .btn:hover, input[type="submit"]:hover {
+  background: linear-gradient(180deg, #ffe08f, #e2ad3a) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Botones secundarios: AZUL Pulse */
+.btn-secondary, button.secondary {
+  background: linear-gradient(180deg, #00e0ff, #0a8fb0) !important;
+  color: #ffffff !important;
+  box-shadow: 0 10px 26px rgba(0,224,255,.45) !important;
+}
+
+/* Textarea más clara para contraste */
+textarea, .textbox, .input {
+  background: #0f1b2e !important;
+  color: #eaf6ff !important;
+  border: 1px solid rgba(0,224,255,.35) !important;
+}
+textarea::placeholder { color: #a8c7d9 !important; }
+
+/* Accesibilidad foco visible */
+:focus-visible {
+  outline: 3px solid rgba(0,224,255,.55) !important;
+  outline-offset: 2px !important;
+  border-radius: 10px;
+}
+
+/* === OVERRIDES FINALES · VISIBILIDAD ALTA === */
+
+/* Paneles y tarjetas: azul oscuro legible */
+.section, .card, .box, .content {
+  background: #0f1b2e !important;
+  border: 1px solid rgba(0,224,255,.35) !important;
+  color: #eaf6ff !important;
+  border-radius: 18px !important;
+}
+
+/* Chips: grandes, contraste alto, sin opacidad tenue */
+.chips button, .chip, .pill, .tag {
+  font-size: 15.5px !important;
+  font-weight: 700 !important;
+  padding: 12px 18px !important;
+  border-radius: 22px !important;
+  background: #133044 !important;                          /* azul profundo */
+  border: 1px solid #27d3ff !important;                    /* borde pulse */
+  color: #eaf6ff !important;
+  opacity: 1 !important; filter: none !important;
+  box-shadow: 0 6px 18px rgba(0,0,0,.25) !important;
+}
+.chips button:hover, .chip:hover, .pill:hover, .tag:hover {
+  background: #15516a !important;
+  box-shadow: 0 0 18px rgba(39,211,255,.35) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Botones principales: ORO grande y legible */
+button, .btn, input[type="button"], input[type="submit"] {
+  font-size: 17px !important;
+  font-weight: 800 !important;
+  padding: 16px 24px !important;
+  border-radius: 18px !important;
+  border: none !important;
+  background: linear-gradient(180deg, #ffd168, #d9a12f) !important;
+  color: #211600 !important;
+  box-shadow: 0 10px 28px rgba(255,209,104,.45) !important;
+}
+button:hover, .btn:hover, input[type="submit"]:hover {
+  background: linear-gradient(180deg, #ffe08f, #e2ad3a) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Botones secundarios: AZUL Pulse */
+.btn-secondary, button.secondary {
+  background: linear-gradient(180deg, #00e0ff, #0a8fb0) !important;
+  color: #ffffff !important;
+  box-shadow: 0 10px 26px rgba(0,224,255,.45) !important;
+}
+
+/* Textarea más clara para contraste */
+textarea, .textbox, .input {
+  background: #0f1b2e !important;
+  color: #eaf6ff !important;
+  border: 1px solid rgba(0,224,255,.35) !important;
+}
+textarea::placeholder { color: #a8c7d9 !important; }
+
+/* Accesibilidad foco visible */
+:focus-visible {
+  outline: 3px solid rgba(0,224,255,.55) !important;
+  outline-offset: 2px !important;
+  border-radius: 10px;
+}
+
+/* ==== PANELS GLASS para que se vea el cielo detrás ==== */
+.panel, .card, .box, .content, .section,
+main > div, section > div:first-child {
+  background: rgba(10,16,28,.55) !important;   /* semi-transparente */
+  backdrop-filter: blur(10px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(160%) !important;
+  border: 1px solid rgba(0,224,255,.25) !important;
+}
+
+/* Inputs también translúcidos, manteniendo contraste */
+textarea, .textbox, .input {
+  background: rgba(10,16,28,.6) !important;
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+}
+
+/* Un leve brillo de borde para separar del cielo */
+.panel::after, .card::after, .section::after {
+  content:""; pointer-events:none; position:absolute; inset:0;
+  border-radius: inherit; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
+}
+
+/* En móviles reducimos transparencia para legibilidad */
+@media (max-width: 520px){
+  .panel, .card, .section { background: rgba(10,16,28,.75) !important; }
+}
+/* ==== PULSE LATERAL ==== */
+#pulse-side{
+  position: fixed; right: 24px; bottom: 28px; z-index: 4;
+  width: min(26vw, 260px); height: auto;
+  filter: drop-shadow(0 10px 30px rgba(0,224,255,.35));
+  animation: pulseFloat 6s ease-in-out infinite;
+  pointer-events: none;               /* no bloquea clicks */
+}
+@keyframes pulseFloat{
+  0%,100%{ transform: translateY(0) }
+  50%{ transform: translateY(-8px) }
+}
+/* si el usuario pide menos movimiento */
+@media (prefers-reduced-motion: reduce){
+  #pulse-side{ animation: none }
+}
+
+/* ===== CIELO ANIMADO VISIBLE ===== */
+#sky{
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 0 !important;           /* antes estaba en -1 */
+  pointer-events: none !important;
+}
+.header, .page-wrap, main, .panel, .card, .section {
+  position: relative; z-index: 1;  /* el contenido por encima del canvas */
+}
+
+/* ===== TARJETAS “BLANCAS” -> AZUL PULSE ===== */
+.section, .card, .box, .content {
+  background: linear-gradient(180deg, #10243a, #0b1e30) !important;
+  border: 1px solid rgba(0,224,255,.35) !important;
+  color: #eaf6ff !important;
+  border-radius: 18px !important;
+  box-shadow: 0 12px 30px rgba(0,0,0,.28) !important;
+}
+
+/* ===== CHIPS (píldoras) ===== */
+.chips button, .chip, .pill, .tag {
+  background: #12384d !important;
+  border: 1px solid #27d3ff !important;
+  color: #eaf6ff !important;
+  font-weight: 700 !important;
+  padding: 12px 18px !important;
+  border-radius: 22px !important;
+}
+.chips button:hover, .chip:hover { background:#155a74 !important; }
+
+/* ===== BOTONES CTA NARANJA/ORO ===== */
+button, .btn, input[type="button"], input[type="submit"]{
+  background: linear-gradient(180deg, #ffd168, #d9a12f) !important;
+  color: #1b1400 !important;
+  border: none !important;
+  border-radius: 18px !important;
+  padding: 16px 24px !important;
+  font-weight: 800 !important;
+  box-shadow: 0 10px 28px rgba(255,209,104,.45) !important;
+}
+button:hover, .btn:hover, input[type="submit"]:hover{
+  background: linear-gradient(180deg, #ffe08f, #e2ad3a) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Botones secundarios (si los usas) en azul pulse */
+.btn-secondary, button.secondary{
+  background: linear-gradient(180deg, #00e0ff, #0a8fb0) !important;
+  color: #ffffff !important;
+}
+
+/* Textarea translúcida con borde pulse */
+textarea{
+  background: rgba(10,16,28,.65) !important;
+  color:#eaf6ff !important;
+  border:1px solid rgba(0,224,255,.35) !important;
+}
+textarea::placeholder{ color:#a8c7d9 !important; }
+
+/* ===== BOTONES PRINCIPALES (oro/naranja) ===== */
+button, .btn, input[type="button"], input[type="submit"] {
+  background: linear-gradient(180deg, #ffd168, #d99c1a) !important;
+  color: #1c1200 !important;
+  border: none !important;
+  border-radius: 18px !important;
+  padding: 16px 24px !important;
+  font-weight: 800 !important;
+  box-shadow: 0 6px 20px rgba(255,209,104,.45) !important;
+}
+button:hover, .btn:hover {
+  background: linear-gradient(180deg, #ffe08f, #e2ad3a) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* ===== TARJETAS (quitar blanco → azul oscuro) ===== */
+.section, .card, .box {
+  background: #0e1a28 !important;
+  border: 1px solid rgba(0,224,255,.25) !important;
+  color: #eaf6ff !important;
+  border-radius: 18px !important;
+  box-shadow: 0 8px 22px rgba(0,0,0,.35) !important;
+}
+
+/* ===== CHIPS (antes azules → ahora naranjas/oro) ===== */
+.chips button, .chip, .pill, .tag {
+  background: linear-gradient(180deg, #ffbb33, #e09a1a) !important;
+  border: 1px solid #e6a930 !important;
+  color: #1c1200 !important;
+  font-weight: 700 !important;
+  padding: 12px 18px !important;
+  border-radius: 22px !important;
+  box-shadow: 0 6px 16px rgba(255,187,51,.3) !important;
+}
+.chips button:hover, .chip:hover {
+  background: linear-gradient(180deg, #ffd168, #e0aa3a) !important;
+  box-shadow: 0 0 16px rgba(255,209,104,.45) !important;
+  transform: translateY(-1px) !important;
+}
+/* Tarjetas/paneles que aún salen blancas */
+.section, .card, .box, .content, .panel,
+[class*="card"], [class*="panel"] {
+  background: #0f1b2e !important;                 /* azul oscuro */
+  border: 1px solid rgba(0,224,255,.28) !important;
+  color: #eaf6ff !important;
+  border-radius: 18px !important;
+  box-shadow: 0 10px 28px rgba(0,0,0,.35) !important;
+}
+
+/* Cualquier elemento con background blanco “duro” */
+*[style*="background:#fff"], *[style*="background: #fff"],
+*[style*="background-color:white"], *[style*="background-color: white"],
+*[style*="background-color:#fff"], *[style*="background-color: #fff"] {
+  background-color: #0f1b2e !important;
+  color:#eaf6ff !important;
+  border-color: rgba(0,224,255,.28) !important;
+}
+
+/* Títulos de sección más legibles */
+.section h3, .card h3, .box h3 { color:#cfe8ff !important; }
+
+/* Chips ya en oro (dejamos tal cual); si algún chip seguía blanco: */
+.chips button, .chip, .pill, .tag {
+  background: linear-gradient(180deg, #ffbb33, #e09a1a) !important;
+  color:#1c1200 !important; border:1px solid #e6a930 !important;
+}
+
+/* Asegurar el canvas detrás y contenido encima */
+#sky{ z-index:0 !important }
+.page-wrap, main, .panel, .section, .card { position:relative; z-index:1 }

@@ -1,0 +1,15 @@
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Comprar créditos · Simplify</title>
+<style>body{font-family:system-ui,Arial;margin:40px;line-height:1.5}a{display:block;margin:12px 0;padding:10px 14px;border-radius:10px;background:#111;color:#fff;text-decoration:none;width:max-content}</style>
+<h1>Comprar créditos</h1>
+<p>Paga de forma segura en Stripe. No guardamos tus datos.</p>
+<a id=one   target=_blank rel=noopener>1 uso · 1 €</a>
+<a id=pack  target=_blank rel=noopener>10 usos · 5 €</a>
+<a id=sub   target=_blank rel=noopener>Suscripción · 8 €/mes</a>
+<script src="/pay.config.js"></script>
+<script>
+const L=window.SIMPLIFY_PAYLINKS||{};
+one.href  = L.ONE   || '#';
+pack.href = L.PACK10|| '#';
+sub.href  = L.SUB   || '#';
+</script>

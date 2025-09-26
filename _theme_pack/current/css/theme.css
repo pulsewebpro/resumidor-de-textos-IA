@@ -1,0 +1,19 @@
+:root{
+  --bg:#070a12; --bg-2:#0b1220; --panel:#0e1626;
+  --fg:#e8f0ff; --muted:#a8b3c7;
+  --primary:#00e0ff; --accent:#ffd168;
+  --danger:#ff5c7a; --ok:#4be38b;
+  --glass:rgba(255,255,255,.06);
+  --border:rgba(255,255,255,.12);
+  --glow:0 0 24px rgba(0,224,255,.25), 0 0 48px rgba(0,224,255,.12);
+  --radius-lg:20px; --radius-md:14px; --radius-sm:10px;
+  --shadow:0 10px 40px rgba(0,0,0,.25);
+}
+html,body{
+  background:
+    radial-gradient(1200px 800px at 70% -10%, rgba(0,224,255,.08), transparent 60%),
+    radial-gradient(900px 600px at 10% 120%, rgba(255,209,104,.06), transparent 60%),
+    var(--bg);
+  color:var(--fg);
+}
+#sky{position:fixed; inset:0; width:100vw; height:100vh; z-index:-1; pointer-events:none;}

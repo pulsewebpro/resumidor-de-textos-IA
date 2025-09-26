@@ -18,9 +18,9 @@
 
     <section class="card" aria-labelledby="input-title">
       <h2 id="input-title" class="sr-only">Entrada</h2>
-      <textarea id="ai-input" id="input" rows="10" placeholder="Pega tu texto aquí…"></textarea>
+      <textarea id="input" rows="10" placeholder="Pega tu texto aquí…"></textarea>
       <div class="actions">
-        <button id="btn-gen" class="btn primary" id="btn-generate">Generar</button>
+        <button id="btn-gen" class="btn primary">Generar (ping API)</button>
         <button id="btn-health" class="btn outline">Probar /api/health</button>
       </div>
     </section>
@@ -68,12 +68,5 @@
 </div><!--page-wrap-->
   <img id="pulse-side" src="/pulse/pulse-avatar.png" alt="Pulse" loading="eager" />
   <script defer src="/js/pulse-side.js"></script>
-  <a id="pulse-logo-wrap" href="/" aria-label="Ir al inicio"><img id="pulse-logo" src="/pulse/pulse-logo.png" alt="Pulse — logo" loading="eager"/></a>
-  <div id="ai-result" style="display:none"></div>
-  <script defer src="/js/app-wire.js"></script>
-  <script defer src="/js/admin-mode.js"></script>
-  <script defer src="/js/admin-bypass.js"></script>
-  <script defer src="/js/admin-bypass.js"></script>
-  <script defer src="/js/result-router.js"></script>
 </body>
 </html>
