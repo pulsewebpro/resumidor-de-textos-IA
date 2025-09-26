@@ -2,78 +2,186 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Simplify AI — Textos en 1 click</title>
-  <link rel="stylesheet" href="./styles.css?v=1758634303801">
-  <link rel="stylesheet" href="/css/theme.css">
-  <link rel="stylesheet" href="/css/skin-simplify.css">
-  <link rel="stylesheet" href="/css/sky.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Simplify AI — Resumir texto con IA en segundos</title>
+  <meta name="description" content="Simplify AI resume textos, traduce y reescribe online con inteligencia artificial. 3 usos gratis, planes flexibles y exportación a Word/PDF." />
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://simplify-ai.vercel.app/">
+  <meta property="og:title" content="Simplify AI — Resumir texto con IA" />
+  <meta property="og:description" content="Resumir, traducir y reescribir textos con IA cinematográfica. 3 usos gratis y planes flexibles." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://simplify-ai.vercel.app/" />
+  <meta property="og:image" content="https://simplify-ai.vercel.app/avatar.png" />
+  <meta name="theme-color" content="#0b0f1a">
+  <link rel="icon" href="/avatar.png" type="image/png">
+  <link rel="stylesheet" href="/styles.css">
+  <script>
+    window.FEATURES = Object.assign({
+      DOC_UPLOAD: false,
+      EXPORT_DOCX: false,
+      EXPORT_PDF: false,
+      SOCIAL_POSTS: true
+    }, window.FEATURES || {});
+  </script>
 </head>
 <body>
-<div class="page-wrap">
-  <canvas id="sky"></canvas>
-  <main class="container">
-    <h1>Simplify AI – Textos en 1 click</h1>
-    <p class="subtle">Prueba rápida para verificar despliegue y la API.</p>
+  <div class="page-shell">
+    <main>
+      <header class="hero" aria-labelledby="hero-title">
+        <div class="hero-content">
+          <div class="hero-text">
+            <h1 id="hero-title" data-i18n="hero.title">Transforma tus textos en segundos con Simplify AI</h1>
+            <p data-i18n="hero.subtitle">Resumir texto con IA, traductor inteligente y reescribir online en una sola web. 3 usos gratis por navegador.</p>
+            <div class="hero-actions">
+              <button id="btn-generate" type="button" data-i18n="cta.start">Empezar ahora</button>
+              <div class="lang-select">
+                <label for="lang-select" class="sr-only">Idioma</label>
+                <select id="lang-select" aria-label="Selecciona idioma">
+                  <option value="es">Español</option>
+                  <option value="en">English</option>
+                  <option value="fr">Français</option>
+                  <option value="de">Deutsch</option>
+                  <option value="it">Italiano</option>
+                  <option value="pt">Português</option>
+                  <option value="nl">Nederlands</option>
+                  <option value="sv">Svenska</option>
+                  <option value="da">Dansk</option>
+                  <option value="no">Norsk</option>
+                  <option value="fi">Suomi</option>
+                  <option value="pl">Polski</option>
+                  <option value="cs">Čeština</option>
+                  <option value="ro">Română</option>
+                  <option value="hu">Magyar</option>
+                  <option value="el">Ελληνικά</option>
+                  <option value="tr">Türkçe</option>
+                  <option value="ar">العربية</option>
+                  <option value="he">עברית</option>
+                  <option value="ru">Русский</option>
+                  <option value="uk">Українська</option>
+                  <option value="hi">हिन्दी</option>
+                  <option value="bn">বাংলা</option>
+                  <option value="id">Bahasa Indonesia</option>
+                  <option value="ms">Bahasa Melayu</option>
+                  <option value="th">ไทย</option>
+                  <option value="vi">Tiếng Việt</option>
+                  <option value="zh">中文</option>
+                  <option value="ja">日本語</option>
+                  <option value="ko">한국어</option>
+                  <option value="ca">Català</option>
+                  <option value="gl">Galego</option>
+                  <option value="eu">Euskara</option>
+                  <option value="sv-SE">Svenska (SE)</option>
+                  <option value="en-GB">English (UK)</option>
+                  <option value="en-US">English (US)</option>
+                  <option value="es-MX">Español (MX)</option>
+                  <option value="es-AR">Español (AR)</option>
+                  <option value="fr-CA">Français (CA)</option>
+                  <option value="pt-BR">Português (BR)</option>
+                  <option value="it-IT">Italiano (IT)</option>
+                  <option value="de-AT">Deutsch (AT)</option>
+                  <option value="pl-PL">Polski (PL)</option>
+                  <option value="cs-CZ">Čeština (CZ)</option>
+                  <option value="ro-RO">Română (RO)</option>
+                  <option value="hu-HU">Magyar (HU)</option>
+                  <option value="tr-TR">Türkçe (TR)</option>
+                  <option value="ar-EG">العربية (EG)</option>
+                  <option value="hi-IN">हिन्दी (IN)</option>
+                  <option value="id-ID">Bahasa Indonesia (ID)</option>
+                  <option value="th-TH">ไทย (TH)</option>
+                  <option value="vi-VN">Tiếng Việt (VN)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="avatar-wrap" aria-hidden="true">
+            <img src="/avatar.png" alt="Simplify AI avatar" />
+          </div>
+        </div>
+        <div class="status-bar" id="status-bar">
+          <span data-i18n="status.credits">Créditos disponibles:</span> <strong id="credit-count">3</strong>
+          <span aria-hidden="true">·</span>
+          <button id="btn-user" type="button" class="secondary-btn" data-i18n="status.account">Ver cuenta</button>
+          <button id="btn-health" type="button" class="secondary-btn" data-i18n="btn.health">Check /api/health</button>
+        </div>
+      </header>
 
-    <section class="card" aria-labelledby="input-title">
-      <h2 id="input-title" class="sr-only">Entrada</h2>
-      <textarea id="ai-input" id="input" rows="10" placeholder="Pega tu texto aquí…"></textarea>
-      <div class="actions">
-        <button id="btn-gen" class="btn primary" id="btn-generate">Generar</button>
-        <button id="btn-health" class="btn outline">Probar /api/health</button>
+      <section class="card" aria-labelledby="input-title">
+        <h2 id="input-title" data-i18n="section.input">Tu texto</h2>
+        <textarea id="input" name="input" rows="10" placeholder="Pega tu texto o idea aquí..." data-i18n-placeholder="textarea.placeholder"></textarea>
+        <div class="actions-row">
+          <small id="prompt-helper" data-i18n="chips.helper">Elige chips para guiar la IA o genera tal cual.</small>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="chips-title">
+        <h2 id="chips-title" data-i18n="section.chips">Modos IA</h2>
+        <div class="chip-groups" id="chip-groups">
+          <!-- Rendered by JS -->
+        </div>
+      </section>
+
+      <section class="card" id="result-area" aria-labelledby="result-title">
+        <h2 id="result-title" data-i18n="section.result">Resultado</h2>
+        <div id="result-status" aria-live="polite"></div>
+        <div id="result" aria-live="polite" aria-atomic="false"></div>
+      </section>
+
+      <section class="card" id="paywall" aria-labelledby="plans-title">
+        <h2 id="plans-title" data-i18n="section.plans">Planes y créditos</h2>
+        <p data-i18n="plans.subtitle">3 usos gratis por navegador. Cuando se agoten, elige un plan.</p>
+        <div class="plans-grid">
+          <article data-plan="one">
+            <h3 data-i18n="plans.one">1 crédito — pago único</h3>
+            <p data-i18n="plans.one.desc">Ideal para urgencias. Entrega inmediata tras el pago.</p>
+            <button type="button" data-plan-action="one" data-i18n="plans.cta.buy">Comprar crédito</button>
+          </article>
+          <article data-plan="ten">
+            <h3 data-i18n="plans.ten">10 créditos — pack ahorro</h3>
+            <p data-i18n="plans.ten.desc">Perfecto para equipos. 10 usos que nunca caducan.</p>
+            <button type="button" data-plan-action="ten" data-i18n="plans.cta.pack">Comprar pack</button>
+          </article>
+          <article data-plan="sub">
+            <h3 data-i18n="plans.sub">Suscripción ilimitada</h3>
+            <p data-i18n="plans.sub.desc">Todo el poder de Simplify AI sin límites por mes.</p>
+            <button type="button" data-plan-action="sub" data-i18n="plans.cta.sub">Suscribirme</button>
+          </article>
+        </div>
+      </section>
+
+      <footer>
+        <span>© <span id="year"></span> Simplify AI · @ByPulse</span>
+        <nav>
+          <a href="/legal/terms.html" data-i18n="legal.terms">Términos</a>
+          <a href="/legal/privacy.html" data-i18n="legal.privacy">Privacidad</a>
+          <a href="/legal/cookies.html" data-i18n="legal.cookies">Cookies</a>
+        </nav>
+      </footer>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="modal-backdrop" aria-hidden="true">
+    <div id="user-modal" role="dialog" aria-modal="true" aria-labelledby="user-modal-title" tabindex="-1">
+      <button type="button" id="btn-close-user" aria-label="Cerrar">×</button>
+      <h3 id="user-modal-title" data-i18n="user.modal.title">Tu cuenta Simplify</h3>
+      <div class="modal-row">
+        <span data-i18n="user.email">Email</span>
+        <strong id="user-email">anon@simplify.ai</strong>
       </div>
-    </section>
-
-    <section class="card" aria-labelledby="chips-title">
-      <h3 id="chips-title">Acciones rápidas</h3>
-      <div id="chips-panel" class="chips-grid"></div>
-    </section>
-
-    <section id="pay-panel" class="card" aria-labelledby="pay-title">
-      <h3 id="pay-title">Créditos y suscripción</h3>
-      <p>Te quedan <strong id="uses-left">3/3</strong> usos gratis. Cuando se agoten, compra créditos:</p>
-      <div class="pay-actions">
-        <a id="pay-one"  class="btn primary" rel="noopener" target="_blank">1 uso · 1 €</a>
-        <a id="pay-pack" class="btn outline" rel="noopener" target="_blank">10 usos · 5 €</a>
-        <a id="pay-sub"  class="btn ghost"   rel="noopener" target="_blank">Suscripción · 8 €/mes</a>
+      <div class="modal-row">
+        <span data-i18n="user.plan">Plan actual</span>
+        <strong id="user-plan">free</strong>
       </div>
-      <small>Stripe gestiona el pago. No guardamos datos de tarjetas.</small>
-    </section>
-
-    <section class="card" aria-labelledby="result-title">
-      <h3 id="result-title">Resultado</h3>
-
-      <div role="tablist" aria-label="Vistas de salida" class="tabs">
-        <button role="tab" aria-selected="true"  aria-controls="tab-res"  id="tabbtn-res"  class="tab">Resultado</button>
-        <button role="tab" aria-selected="false" aria-controls="tab-json" id="tabbtn-json" class="tab">JSON</button>
-        <button role="tab" aria-selected="false" aria-controls="tab-raw"  id="tabbtn-raw"  class="tab">Raw</button>
+      <div class="modal-row">
+        <span data-i18n="user.credits">Créditos disponibles</span>
+        <strong id="user-credits">3</strong>
       </div>
+      <div class="modal-actions">
+        <button type="button" class="secondary-btn" id="btn-manage-plan" data-i18n="user.manage">Gestionar plan</button>
+        <button type="button" class="secondary-btn" id="btn-close-session" data-i18n="user.reset">Resetear créditos</button>
+      </div>
+    </div>
+  </div>
 
-      <div id="loading" hidden>Generando…</div>
-
-      <pre id="tab-res"  role="tabpanel" tabindex="0"  aria-labelledby="tabbtn-res"  class="panel"></pre>
-      <pre id="tab-json" role="tabpanel" tabindex="-1" aria-labelledby="tabbtn-json" class="panel" hidden></pre>
-      <pre id="tab-raw"  role="tabpanel" tabindex="-1" aria-labelledby="tabbtn-raw"  class="panel" hidden></pre>
-    </section>
-  </main>
-
-  <!-- Orden de scripts. Rutas relativas + cache-bust -->
-  <script src="./pay.config.js?v=1758634303801" defer></script>
-  <script src="./pay.guard.js?v=1758634303801"  defer></script>
-  <script src="./chips.js?v=1758634303801"      defer></script>
-  <script src="./pay.ui.js?v=1758634303801"     defer></script>
-  <script src="./main.js?v=1758634303801"       defer></script>
-  <script defer src="/js/sky.js"></script>
-</div><!--page-wrap-->
-  <img id="pulse-side" src="/pulse/pulse-avatar.png" alt="Pulse" loading="eager" />
-  <script defer src="/js/pulse-side.js"></script>
-  <a id="pulse-logo-wrap" href="/" aria-label="Ir al inicio"><img id="pulse-logo" src="/pulse/pulse-logo.png" alt="Pulse — logo" loading="eager"/></a>
-  <div id="ai-result" style="display:none"></div>
-  <script defer src="/js/app-wire.js"></script>
-  <script defer src="/js/admin-mode.js"></script>
-  <script defer src="/js/admin-bypass.js"></script>
-  <script defer src="/js/admin-bypass.js"></script>
-  <script defer src="/js/result-router.js"></script>
+  <script type="module" src="/main.js"></script>
 </body>
 </html>
