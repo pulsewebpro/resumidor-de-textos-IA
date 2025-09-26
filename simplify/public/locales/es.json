@@ -1,0 +1,14 @@
+{
+  "hero.title": "Convierte ideas en impacto con IA, al instante.",
+  "hero.subtitle": "Resume, traduce, reescribe o transforma en poema o contrato. 3 usos gratis. Sin registro.",
+  "cta.start": "Empieza gratis",
+  "textarea.placeholder": "Pega tu texto aquí…",
+  "btn.generate": "Generar",
+  "btn.health": "Comprobar /api/health",
+  "plans.one": "1 uso = 1 €",
+  "plans.ten": "10 usos = 5 €",
+  "plans.sub": "Ilimitado = 8 €/mes",
+  "user.email": "Correo electrónico",
+  "user.plan": "Plan actual",
+  "user.credits": "Créditos restantes"
+}

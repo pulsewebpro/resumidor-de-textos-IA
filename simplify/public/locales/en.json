@@ -1,0 +1,14 @@
+{
+  "hero.title": "Turn ideas into impact with AI, instantly.",
+  "hero.subtitle": "Summarize, translate, rewrite or turn into poem or contract. 3 free uses. No signup.",
+  "cta.start": "Start free",
+  "textarea.placeholder": "Paste your text here...",
+  "btn.generate": "Generate",
+  "btn.health": "Check /api/health",
+  "plans.one": "1 use = 1 €",
+  "plans.ten": "10 uses = 5 €",
+  "plans.sub": "Unlimited = 8 €/month",
+  "user.email": "Email",
+  "user.plan": "Current plan",
+  "user.credits": "Credits left"
+}

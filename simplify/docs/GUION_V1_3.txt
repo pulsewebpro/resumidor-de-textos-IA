@@ -1,0 +1,96 @@
+SIMPLIFY AI — BRIEF CERRADO PARA IMPLEMENTACIÓN 1:1 (v1.3)
+
+OBJETIVO
+Web-app final (landing+app) con UI cinematográfica y TODO funcional. Botón visible = acción real. Si algo no está listo → oculto por feature flag.
+
+STACK + ESTRUCTURA
+/public: index.html, styles.css, main.js, /locales/{en,es,fr}.json, /avatar.png
+/public/legal: terms.html, privacy.html, cookies.html
+/api: ai.js, health.js, checkout.js, wallet.js, portal.js, stripe-webhook.js
+vercel.json, docs/GUION_V1_3.txt
+
+REGLAS DURAS
+- /api/ai SIEMPRE devuelve JSON válido {ok:true, outputs:[{label,content}]} (fallback si falta OPENAI_API_KEY).
+- 3 usos gratis por navegador (localStorage). Luego checkout 1/10/sub o suscripción ilimitada.
+- i18n ES/EN/FR + selector +50. Fallback EN. Persistencia en localStorage.
+- Accesibilidad AA (foco visible, aria-live en resultados, tab correcto).
+- Nada de marcas externas. Solo @ByPulse en footer.
+
+IDS / WIRING (HTML)
+#input (textarea)
+#btn-generate, #btn-health (solo admin), #btn-user, #btn-manage-plan, #btn-close-user
+#result (aria-live="polite")
+#chips con <button class="chip" data-action="grupo:clave">
+#plans con <article data-plan="one|ten|sub">
+#lang-select (selector idioma)
+#user-modal (role="dialog", clase .open para mostrar)
+
+FEATURE FLAGS (window.FEATURES)
+DOC_UPLOAD, EXPORT_DOCX, EXPORT_PDF, SOCIAL_POSTS (true/false). Si false → ocultar bloques con data-feature="NOMBRE".
+
+LOCALSTORAGE
+simplify_credits (num, inicia 3), simplify_plan ("free"|"one"|"ten"|"sub"),
+simplify_lang, simplify_admin ("on"|"off").
+
+FLUJO CRÉDITOS
+Al cargar: si no existe simplify_credits → 3.
+Generate: si admin o plan=sub → no descuenta; si credits>0 → credits--; si credits==0 → bloquear y mostrar planes.
+Tras pago: /api/wallet actualiza plan/credits (vía webhook).
+
+API CONTRATOS
+POST /api/ai    { input, prompt:["grupo:clave"] } → { ok:true, outputs:[{label:"AI",content:"..."}] }
+GET  /api/health → { ok:true, ts }
+POST /api/checkout { plan:"one"|"ten"|"sub" } → { ok:true, url:"..." }
+GET  /api/wallet  → { ok:true, plan:"free|one|ten|sub", credits:Number }
+GET  /api/portal  → { ok:true, url:"..." }
+POST /api/stripe-webhook → activa créditos/plan: one +1, ten +10, sub plan="sub" (ilimitado)
+
+MAPEO CHIPS → PROMPTS
+summarize: tldr|bullets|general|kids|expert
+translate: en|fr|de|it|pt|...|localize   (selector llena el código)
+rewrite: clear|short|formal|convincing
+seo: title|meta|email|ig|linkedin
+legal: contract|privacy|disclaimer|lawyer|easy
+creative: poem|rap|story|joke|classic
+docs: pdf:summary|export:docx|export:pdf
+prompt: make|viral|goal|as:role|business|twist|pro|adapt:world
+
+REGLAS DE SALIDA (formato)
+tldr=1 frase (20–30 palabras); bullets=3–7 puntos; seo:title ≤60ch; seo:meta 150–160ch;
+legal con secciones mínimas (roles, obligaciones, pagos, plazo, ley); translate mantiene tono y adapta unidades si procede.
+
+UI CINEMATOGRÁFICA (tokens)
+:root { --bg:#0B0F1A; --text:#EAF2FF; --text-2:#A6B3D1; --accent:#44D1FF;
+ --glass:rgba(255,255,255,.08); --glass-brd:rgba(255,255,255,.20);
+ --radius-s:12px; --radius-l:24px; --radius-xl:32px; --blur:16px; }
+Aura detrás del avatar (blur 48px, cian 25%). CTA con latido cada 2.5s (scale 1→1.04→1).
+Chips/tarjetas en glassmorphism (background var(--glass), backdrop-filter:blur(var(--blur)), border 1px var(--glass-brd)).
+
+I18N CLAVES MÍNIMAS
+hero.title, hero.subtitle, cta.start, textarea.placeholder, btn.generate, btn.health,
+plans.one, plans.ten, plans.sub, user.email, user.plan, user.credits.
+
+ACCESIBILIDAD
+Contraste ≥4.5:1; foco visible 2px cian; aria-live en #result; role="dialog" + ESC cierra;
+orden de tab: header → textarea → chips → generate → planes → footer.
+
+SEO + LEGALES
+Title/Description definidos, OG, robots.txt, sitemap.xml, canonical. Footer enlaza Terms/Privacy/Cookies.
+
+ORDEN DE ENTREGA (commits A→E)
+A) Hero + Textarea + Resultado con streaming
+B) Chips conectados a /api/ai (mapping completo)
+C) Planes + /api/checkout + /api/stripe-webhook + /api/wallet
+D) Modal Usuario + /api/portal + admin (?admin=on o Ctrl+Alt+A)
+E) i18n + AA + SEO + legales + feature flags
+
+DEFINITION OF DONE
+- Todos los chips visibles generan salida válida en streaming.
+- Créditos: 3→0→checkout→wallet actualizado/plan activo.
+- Modal Usuario muestra plan/credits y abre portal.
+- i18n ES/EN/FR + selector 50+ activo (persistencia).
+- AA validada; SEO/legales presentes.
+- Preview Vercel estable + QA_DEPLOY.md con checklist pasado.
+
+ENTREGA
+PR único completando todo lo anterior. Nada de botones muertos. Lo no listo, oculto por flag.
